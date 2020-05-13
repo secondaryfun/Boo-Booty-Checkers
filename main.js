@@ -28,20 +28,43 @@ boardTiles.forEach(box => {
 })
 //  Populate board
 boardTiles.forEach(box => {
+    let row = parseInt(box.dataset.y)
+    let col = parseInt(box.dataset.x)
+    let char = null;
     
-    
-    box.addEventListener('click', e => {
-        let div = document.createElement('div')
-        div.classList.add(`${dupType}`,'animation','item')
-        div.classList.add('biter','animation','item')
-        div.addEventListener('mousedown', setDrag)
-        div.addEventListener('touchstart', setDrag)
-        div.addEventListener('click', e => {
-            e.stopPropagation()
-        })
-        e.target.appendChild(div)
-    })
+    // Set character
+    if (row <= 3) char = 'biter'
+    else if (row >= 6) char = 'grinder'
+
+    // Add characters to rows
+    if(row % 2 === 1) {
+        if (col % 2 === 1 && char) box.appendChild(makeChar(char))
+    } else if (row % 2 === 0) {
+        if (col % 2 === 0 && char) box.appendChild(makeChar(char))
+    }
 })
+
+function makeChar(char) {
+    let charContainer = document.createElement('p')
+    charContainer.classList.add(`${char}`,'animation','movableItem')
+    return charContainer
+}
+
+
+//  Add event listener to each box
+// boardTiles.forEach(box => {   
+//     box.addEventListener('click', e => {
+//         let div = document.createElement('div')
+//         div.classList.add(`${dupType}`,'animation','item')
+//         div.classList.add('biter','animation','item')
+//         div.addEventListener('mousedown', setDrag)
+//         div.addEventListener('touchstart', setDrag)
+//         div.addEventListener('click', e => {
+//             e.stopPropagation()
+//         })
+//         e.target.appendChild(div)
+//     })
+// })
 
 function setDrag(e) {
     e.stopPropagation()
