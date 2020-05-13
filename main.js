@@ -1,4 +1,6 @@
-const boardTiles = document.querySelectorAll('.box')
+//Units:  board = the entire board.  square = each square on the board. char = each character placed on the board
+
+const boardSquares = document.querySelectorAll('.square')
 let boardCharList = []
 
 //add character class
@@ -10,29 +12,29 @@ function Character (name, index, loc){
 }
 
 //  Color Board
-boardTiles.forEach(box => {
-    let index = parseInt(box.dataset.index)
+boardSquares.forEach(square => {
+    let index = parseInt(square.dataset.index)
     
     // Set columns
-    if (index % 8 === 0) box.dataset.x = 8
-    else box.dataset.x = index % 8
-    let col = parseInt(box.dataset.x)
+    if (index % 8 === 0) square.dataset.x = 8
+    else square.dataset.x = index % 8
+    let col = parseInt(square.dataset.x)
     
     // Set rows
-    box.dataset.y = Math.ceil(index / 8)
-    let row = parseInt(box.dataset.y)
+    square.dataset.y = Math.ceil(index / 8)
+    let row = parseInt(square.dataset.y)
 
     // Add colorBox class to offset boxes
     if(row % 2 === 1) {
-        if (col % 2 === 1) box.classList.add('colorBox')
+        if (col % 2 === 1) square.classList.add('colorBox')
     } else if (row % 2 === 0) {
-        if (col % 2 === 0) box.classList.add('colorBox')
+        if (col % 2 === 0) square.classList.add('colorBox')
     }
 })
 //  Populate board
-boardTiles.forEach(box => {
-    let row = parseInt(box.dataset.y)
-    let col = parseInt(box.dataset.x)
+boardSquares.forEach(square => {
+    let row = parseInt(square.dataset.y)
+    let col = parseInt(square.dataset.x)
     let char = null;
     
     // Set character name.
@@ -41,9 +43,9 @@ boardTiles.forEach(box => {
 
     // Add characters to rows:  makeChar receives char and coordinate location (row,column).
     if(row % 2 === 1) {
-        if (col % 2 === 1 && char) box.appendChild(makeChar(char, `${col},${row}`))
+        if (col % 2 === 1 && char) square.appendChild(makeChar(char, `${col},${row}`))
     } else if (row % 2 === 0) {
-        if (col % 2 === 0 && char) box.appendChild(makeChar(char,`${col},${row}`))
+        if (col % 2 === 0 && char) square.appendChild(makeChar(char,`${col},${row}`))
     }
 })
     // Make Characters of char = 'name'
@@ -59,8 +61,14 @@ boardTiles.forEach(box => {
         let charContainer = document.createElement('p')
         charContainer.classList.add(character.name,'animation','movableItem')
         charContainer.setAttribute('data-active', 'false')
+        charContainer.setAttribute('data-index',`${character.index}`)
         //  Returns the DOM element.
         return charContainer
+    }
+
+    //  Place character on tile
+    function placeChar(square, char) {
+        square.appendChild(char)
     }
 
 //  Set "On-click" event listeners
@@ -69,7 +77,9 @@ characters.forEach(item => {
     item.addEventListener('click', e => {
         console.log(e.target.dataset.active)
         if (e.target.dataset.active === 'false') {
+            // Make 
             e.target.dataset.active = 'true'
+
             animate(e.target, true)
         } else {
             e.target.dataset.active = 'false'
@@ -79,13 +89,18 @@ characters.forEach(item => {
     })
 })
 
+    // Set character as active
+    function setActiveChar(e.target) {
+
+    }
+
 //  NEXT UP:  CREATE CLASSES FOR THE CHARACTERS, MAKE A NEW CLASS FOR EACH CHAR. 
 //  CLASS WILL HAVE:  INDEX, ANIMATIONVAR, NAME (=CSS CLASS NAME) TO START
 
 
-//  Add event listener to each box
-// boardTiles.forEach(box => {   
-//     box.addEventListener('click', e => {
+//  Add event listener to each square
+// boardSquares.forEach(square => {   
+//     square.addEventListener('click', e => {
 //         let div = document.createElement('div')
 //         div.classList.add(`${dupType}`,'animation','item')
 //         div.classList.add('biter','animation','item')
@@ -144,10 +159,10 @@ board.addEventListener("mousedown", dragStart, false);
 board.addEventListener("mouseup", dragEnd, false);
 board.addEventListener("mousemove", drag, false);
 
-boardTiles.forEach(box => {
-    box.addEventListener('touchend', e => {
+boardSquares.forEach(square => {
+    square.addEventListener('touchend', e => {
         dragEndTarget = e.target.dataset.index;
-        console.log(`Ending in box: ${e.target.dataset.index}`)
+        console.log(`Ending in square: ${e.target.dataset.index}`)
     })
 })
 

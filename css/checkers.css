@@ -17,7 +17,7 @@
     margin: 0 auto;
 }
 
-.box {
+.square {
     height: 12%;
     width: 12%;
     background-size: contain;
@@ -27,7 +27,7 @@
     justify-content: center;
     align-items: center;
 }
-.box:hover {
+.square:hover {
     background-color: rgba(255, 136, 0, 0.644)
 }
 
@@ -38,5 +38,5 @@
 }
 
 .movableItem {
-    
+
 }
