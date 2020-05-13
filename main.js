@@ -4,8 +4,8 @@ const boardSquares = document.querySelectorAll('.square')
 let boardCharList = []
 
 //add character class
-function Character (name, index, loc){
-    this.name = name
+function Character (type, index, loc){
+    this.type = type
     this.index = index
     this.animation = null
     this.loc = loc
@@ -35,31 +35,32 @@ boardSquares.forEach(square => {
 boardSquares.forEach(square => {
     let row = parseInt(square.dataset.y)
     let col = parseInt(square.dataset.x)
-    let char = null;
+    let charName = null;
     
     // Set character name.
-    if (row <= 3) char = 'biter'
-    else if (row >= 6) char = 'grinder'
+    if (row <= 3) charName = 'biter'
+    else if (row >= 6) charName = 'grinder'
 
-    // Add characters to rows:  makeChar receives char and coordinate location (row,column).
+    // Add characters to rows:  makeChar receives charName and coordinate location (row,column).
     if(row % 2 === 1) {
-        if (col % 2 === 1 && char) square.appendChild(makeChar(char, `${col},${row}`))
+        if (col % 2 === 1 && charName) placeChar( square, makeChar(charName) )
+        // square.appendChild(makeChar(charName, `${col},${row}`))
     } else if (row % 2 === 0) {
-        if (col % 2 === 0 && char) square.appendChild(makeChar(char,`${col},${row}`))
+        if (col % 2 === 0 && charName) placeChar( square, makeChar(charName) )
     }
 })
     // Make Characters of char = 'name'
-    function makeChar(name, loc) {
+    function makeChar(name) {
         //  Build character object
         let charIndex = boardCharList.length
-        let character = new Character(name, charIndex, loc)
+        let character = new Character(name, charIndex)
         
         //  Append new obj to board list
         boardCharList.push(character)
 
         //  Build new element for the DOM
         let charContainer = document.createElement('p')
-        charContainer.classList.add(character.name,'animation','movableItem')
+        charContainer.classList.add(character.type,'animation','movableItem')
         charContainer.setAttribute('data-active', 'false')
         charContainer.setAttribute('data-index',`${character.index}`)
         //  Returns the DOM element.
@@ -67,8 +68,15 @@ boardSquares.forEach(square => {
     }
 
     //  Place character on tile
-    function placeChar(square, char) {
-        square.appendChild(char)
+    function placeChar(square, charContainer) {
+        // Place the charContainer into the square.
+        square.appendChild(charContainer)
+
+        // Get the square location
+        let row = parseInt(square.dataset.y)
+        let col = parseInt(square.dataset.x)
+        // Add loc to the char object
+        boardCharList[charContainer.dataset.index].loc = `${col},${row}`
     }
 
 //  Set "On-click" event listeners
@@ -90,9 +98,9 @@ characters.forEach(item => {
 })
 
     // Set character as active
-    function setActiveChar(e.target) {
+    // function setActiveChar(e.target) {
 
-    }
+    // }
 
 //  NEXT UP:  CREATE CLASSES FOR THE CHARACTERS, MAKE A NEW CLASS FOR EACH CHAR. 
 //  CLASS WILL HAVE:  INDEX, ANIMATIONVAR, NAME (=CSS CLASS NAME) TO START
@@ -210,3 +218,5 @@ function drag(e) {
 function setTranslate(xPos, yPos, el) {
     el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
 }
+
+console.log(boardCharList)
