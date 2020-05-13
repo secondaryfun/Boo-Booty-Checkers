@@ -1,11 +1,5 @@
 const boardTiles = document.querySelectorAll('.box')
 
-let dupType = 'biter'
-const pickers = document.querySelectorAll('.picker')
-pickers.forEach(pic => {
-    pic.addEventListener('click', e => dupType = e.target.dataset.type)
-})
-
 //  Color Board
 boardTiles.forEach(box => {
     let index = parseInt(box.dataset.index)
@@ -43,12 +37,29 @@ boardTiles.forEach(box => {
         if (col % 2 === 0 && char) box.appendChild(makeChar(char))
     }
 })
+    // Make Characters of char = 'name'
+    function makeChar(char) {
+        let charContainer = document.createElement('p')
+        charContainer.classList.add(`${char}`,'animation','movableItem')
+        charContainer.setAttribute('data-active', 'false')
+        return charContainer
+    }
 
-function makeChar(char) {
-    let charContainer = document.createElement('p')
-    charContainer.classList.add(`${char}`,'animation','movableItem')
-    return charContainer
-}
+//  Set "On-click" event listeners
+const characters = document.querySelectorAll('.movableItem')
+characters.forEach(item => {
+    item.addEventListener('click', e => {
+        console.log(e.target.dataset.active)
+        if (e.target.dataset.active === 'false') {
+            animate(e.target, true)
+            e.target.dataset.active = 'true'
+        } else {
+            animate(e.target, false)
+            e.target.dataset.active = 'false'
+        }
+
+    })
+})
 
 
 //  Add event listener to each box
@@ -74,15 +85,20 @@ function setDrag(e) {
     dragItem = e.target
 }
 
-function animateScript(obj) {
-    let imgSize = 77
-    let position = imgSize;
-    const interval = 100;
-    setInterval(() => {
-    obj.style.backgroundPosition = `-${position}px 0px`;
-    if (position < 480) position += imgSize;
-    else position = imgSize;
-  }, interval);
+
+// Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
+var tID;
+function animate(obj, start) {
+    if (start === true) {
+        let imgSize = 77
+        let position = imgSize;
+        const interval = 100;
+        tID = setInterval(() => {
+            obj.style.backgroundPosition = `-${position}px 0px`;
+            if (position < 480) position += imgSize;
+            else position = imgSize;
+        }, interval);
+    } else clearInterval(tID)
 }
 
 //  Mouse Drag Tutorial: https://www.kirupa.com/html5/drag.htm
