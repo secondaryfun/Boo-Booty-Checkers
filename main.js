@@ -6,11 +6,33 @@ pickers.forEach(pic => {
     pic.addEventListener('click', e => dupType = e.target.dataset.type)
 })
 
+//  Color Board
+let tileColor = `rgba(255, 0, 0, .6)`
 boardTiles.forEach(box => {
+    let index = parseInt(box.dataset.index)
+    
+    // Set columns
+    if (index % 8 === 0) box.dataset.x = 8
+    else box.dataset.x = index % 8
+    let col = parseInt(box.dataset.x)
+    
+    // Set rows
+    box.dataset.y = Math.ceil(index / 8)
+    let row = parseInt(box.dataset.y)
+    console.log(col, row)
+
+    if(row % 2 === 1) {
+        if(col % 2 === 1) box.style.background = tileColor
+    } 
+})
+//  Populate board
+boardTiles.forEach(box => {
+    
+    
     box.addEventListener('click', e => {
         let div = document.createElement('div')
         div.classList.add(`${dupType}`,'animation','item')
-        // div.classList.add('biter','animation','item')
+        div.classList.add('biter','animation','item')
         div.addEventListener('mousedown', setDrag)
         div.addEventListener('touchstart', setDrag)
         div.addEventListener('click', e => {

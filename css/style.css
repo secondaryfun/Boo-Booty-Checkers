@@ -10,11 +10,14 @@ body {
     flex-direction: column;
     justify-content: center;
     border-radius: .5rem;
+    background-color: rgba(1, 164, 251, 0.8)
     
 }
 
 .picker {
     display: inline-block;
+    height: 5rem !important;
+    width: 5rem !important;
 }
 .board {
     width: 80vh;
@@ -25,8 +28,8 @@ body {
     align-content: space-between;
     margin: 0 auto;
     gap: 1rem;
-    background: red;
-    border: red 2px solid;
+    background: url('images/dungeon-1000px.jpg');
+    background-size: cover;
 }
 
 .box {
@@ -35,8 +38,11 @@ body {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    background-color: white;
+    /* background-color: white; */
     /* background-image: url('images/x-icon.png') */
+}
+.box:hover {
+    background-color: rgba(255, 136, 0, 0.644)
 }
 
 .results {
