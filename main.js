@@ -91,13 +91,12 @@ charElements.forEach(item => {
 
         if (charElement.dataset.active === 'false') {    
             activate(charElement)
-            // charElement.dataset.active = 'true'  // Make this charElement active
-            // animate(charElement, true)  // Turn on animation
-            // getValidMoves(charElement)
+            getValidMoves(charElement)
 
         } else deactivate(charElement)  // Inactivate the charElement
     })
 })
+
 // Set 'Active' attributes: dataset.active, animation: on.
 function activate(charElement) {
     if (ACTIVE) deactivate(ACTIVE)  //  Deactivate previous ACTIVE
@@ -114,12 +113,33 @@ function activate(charElement) {
     }
 
 function getValidMoves(charElement) {
-    //pull data
+    // Pull data for charElement.
     charData = boardCharList[ charElement.dataset.index ]
+        availableMoves = []
+    
+        // Get current location as array of coordinates [x,]
+    currentLoc = charData.loc.split(',')
+    currentLoc.forEach( (coord, i) => currentLoc[i] = parseInt(coord) )
+
+    // Determine moves for top board pieces
     if (charData.type === 'biter') {
-        // console.log(charData.loc)
+        // set available moves as coordinate array inside move list
+        availableMoves.push( [currentLoc[1]+1,currentLoc[0]-1] )
+        availableMoves.push( [currentLoc[1]+1,currentLoc[0]+1] )
+        console.log(availableMoves)
+
     }
 }    
+
+function highlightMoves(moves) {
+    moves.forEach(move => {
+        //get square
+        boardSquares.filter(square => {
+            if (square.dataset.y == move[0] && square.dataset.x == move[1]) null
+        })
+    })
+}
+
 
 
 // Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
