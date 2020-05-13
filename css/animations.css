@@ -1,7 +1,7 @@
 .biter {
-    height: 80px;
-    width: 80px;
-    background-size: 80px;
+    height: 78px;
+    width: 78px;
+    /* background-size: 75px; */
     background: url("../images/bootyBiter-animated-r.png") 0px
         0px;
     background-size: cover;
@@ -14,8 +14,4 @@
     background: url("../images/BootyGrinder-animated-l.png") 0px
         0px;
     background-size: cover;
-}
-
-.board {
-    background: url('../images/dungeon-1000px.jpg');
 }

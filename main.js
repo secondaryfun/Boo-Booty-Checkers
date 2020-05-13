@@ -51,15 +51,18 @@ characters.forEach(item => {
     item.addEventListener('click', e => {
         console.log(e.target.dataset.active)
         if (e.target.dataset.active === 'false') {
-            animate(e.target, true)
             e.target.dataset.active = 'true'
+            animate(e.target, true)
         } else {
-            animate(e.target, false)
             e.target.dataset.active = 'false'
+            animate(e.target, false)
         }
 
     })
 })
+
+//  NEXT UP:  CREATE CLASSES FOR THE CHARACTERS, MAKE A NEW CLASS FOR EACH CHAR. 
+//  CLASS WILL HAVE:  INDEX, ANIMATIONVAR, NAME (=CSS CLASS NAME) TO START
 
 
 //  Add event listener to each box
@@ -89,7 +92,7 @@ function setDrag(e) {
 // Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
 var tID;
 function animate(obj, start) {
-    if (start === true) {
+    if (obj.dataset.active === 'true') {
         let imgSize = 77
         let position = imgSize;
         const interval = 100;
