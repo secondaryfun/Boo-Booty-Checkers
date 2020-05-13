@@ -1,4 +1,13 @@
 const boardTiles = document.querySelectorAll('.box')
+let boardCharList = []
+
+//add character class
+function Character (name, index, loc){
+    this.name = name
+    this.index = index
+    this.animation = null
+    this.loc = loc
+}
 
 //  Color Board
 boardTiles.forEach(box => {
@@ -12,8 +21,8 @@ boardTiles.forEach(box => {
     // Set rows
     box.dataset.y = Math.ceil(index / 8)
     let row = parseInt(box.dataset.y)
-    console.log(col, row)
 
+    // Add colorBox class to offset boxes
     if(row % 2 === 1) {
         if (col % 2 === 1) box.classList.add('colorBox')
     } else if (row % 2 === 0) {
@@ -26,22 +35,31 @@ boardTiles.forEach(box => {
     let col = parseInt(box.dataset.x)
     let char = null;
     
-    // Set character
+    // Set character name.
     if (row <= 3) char = 'biter'
     else if (row >= 6) char = 'grinder'
 
-    // Add characters to rows
+    // Add characters to rows:  makeChar receives char and coordinate location (row,column).
     if(row % 2 === 1) {
-        if (col % 2 === 1 && char) box.appendChild(makeChar(char))
+        if (col % 2 === 1 && char) box.appendChild(makeChar(char, `${col},${row}`))
     } else if (row % 2 === 0) {
-        if (col % 2 === 0 && char) box.appendChild(makeChar(char))
+        if (col % 2 === 0 && char) box.appendChild(makeChar(char,`${col},${row}`))
     }
 })
     // Make Characters of char = 'name'
-    function makeChar(char) {
+    function makeChar(name, loc) {
+        //  Build character object
+        let charIndex = boardCharList.length
+        let character = new Character(name, charIndex, loc)
+        
+        //  Append new obj to board list
+        boardCharList.push(character)
+
+        //  Build new element for the DOM
         let charContainer = document.createElement('p')
-        charContainer.classList.add(`${char}`,'animation','movableItem')
+        charContainer.classList.add(character.name,'animation','movableItem')
         charContainer.setAttribute('data-active', 'false')
+        //  Returns the DOM element.
         return charContainer
     }
 
