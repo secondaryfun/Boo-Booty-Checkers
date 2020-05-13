@@ -1,3 +1,35 @@
 .colorBox {
-    background-color: rgba(255, 115, 0, 0.4);
+    background-color: rgba(0, 38, 255, 0.5);
+}
+
+.board {
+    background: url('../images/dungeon-1000px.jpg');
+    background-size: cover;
+}
+
+.board {
+    width: 80vh;
+    height: 80vh;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-content: space-between;
+    margin: 0 auto;
+}
+
+.box {
+    height: 12%;
+    width: 12%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.box:hover {
+    background-color: rgba(255, 136, 0, 0.644)
+}
+
+.picker {
+    display: inline-block;
+    height: 5rem !important;
+    width: 5rem !important;
 }

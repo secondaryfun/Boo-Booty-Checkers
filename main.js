@@ -7,7 +7,6 @@ pickers.forEach(pic => {
 })
 
 //  Color Board
-let tileColor = `rgba(255, 0, 0, .6)`
 boardTiles.forEach(box => {
     let index = parseInt(box.dataset.index)
     
@@ -22,8 +21,10 @@ boardTiles.forEach(box => {
     console.log(col, row)
 
     if(row % 2 === 1) {
-        if(col % 2 === 1) box.style.background = tileColor
-    } 
+        if (col % 2 === 1) box.classList.add('colorBox')
+    } else if (row % 2 === 0) {
+        if (col % 2 === 0) box.classList.add('colorBox')
+    }
 })
 //  Populate board
 boardTiles.forEach(box => {

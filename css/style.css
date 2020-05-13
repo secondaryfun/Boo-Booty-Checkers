@@ -14,37 +14,6 @@ body {
     
 }
 
-.picker {
-    display: inline-block;
-    height: 5rem !important;
-    width: 5rem !important;
-}
-.board {
-    width: 80vh;
-    height: 80vh;
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-between;
-    align-content: space-between;
-    margin: 0 auto;
-    gap: 1rem;
-    background: url('images/dungeon-1000px.jpg');
-    background-size: cover;
-}
-
-.box {
-    height: 12%;
-    width: 12%;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    /* background-color: white; */
-    /* background-image: url('images/x-icon.png') */
-}
-.box:hover {
-    background-color: rgba(255, 136, 0, 0.644)
-}
-
 .results {
     font-size: 4rem;
     background: rgba(255, 0, 0, .3);
