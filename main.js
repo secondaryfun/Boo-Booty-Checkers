@@ -1,10 +1,10 @@
-//Units:  board = the entire board.  square = each square on the board. char = each character placed on the board
+//Units:  board = the entire board.  square = each square on the board. charElement = each character placed on the board. 
 
 const boardSquares = document.querySelectorAll('.square')
 let boardCharList = []
 
 //add character class
-function Character (type, index, loc){
+function CharElementData (type, index, loc){
     this.type = type
     this.index = index
     this.animation = null
@@ -53,47 +53,48 @@ boardSquares.forEach(square => {
     function makeChar(name) {
         //  Build character object
         let charIndex = boardCharList.length
-        let character = new Character(name, charIndex)
+        let charData = new CharElementData(name, charIndex)
         
-        //  Append new obj to board list
-        boardCharList.push(character)
+        //  Append new charElement to board list
+        boardCharList.push(charData)
 
         //  Build new element for the DOM
-        let charContainer = document.createElement('p')
-        charContainer.classList.add(character.type,'animation','movableItem')
-        charContainer.setAttribute('data-active', 'false')
-        charContainer.setAttribute('data-index',`${character.index}`)
+        let charElement = document.createElement('p')
+        charElement.classList.add(charData.type,'animation','char-element')
+        charElement.setAttribute('data-active', 'false')
+        charElement.setAttribute('data-index',`${charData.index}`)
         //  Returns the DOM element.
-        return charContainer
+        return charElement
     }
 
     //  Place character on tile
-    function placeChar(square, charContainer) {
-        // Place the charContainer into the square.
-        square.appendChild(charContainer)
+    function placeChar(square, charElement) {
+        // Place the charElement into the square.
+        square.appendChild(charElement)
 
         // Get the square location
         let row = parseInt(square.dataset.y)
         let col = parseInt(square.dataset.x)
         // Add loc to the char object
-        boardCharList[charContainer.dataset.index].loc = `${col},${row}`
+        boardCharList[charElement.dataset.index].loc = `${col},${row}`
     }
 
 //  Set "On-click" event listeners
-const characters = document.querySelectorAll('.movableItem')
-characters.forEach(item => {
+const charElements = document.querySelectorAll('.char-element')
+charElements.forEach(item => {
     item.addEventListener('click', e => {
-        console.log(e.target.dataset.active)
-        if (e.target.dataset.active === 'false') {
-            // Make 
-            e.target.dataset.active = 'true'
+        let charElement = e.target
+        if (charElement.dataset.active === 'false') {    
 
-            animate(e.target, true)
+            charElement.dataset.active = 'true'  // Make this charElement active
+            animate(charElement, true)  // Turn on animation
+
         } else {
-            e.target.dataset.active = 'false'
-            animate(e.target, false)
-        }
 
+            charElement.dataset.active = 'false'  // Inactivate the charElement
+            animate(charElement, false)  //  Turn off animation
+
+        }
     })
 })
 
@@ -101,6 +102,21 @@ characters.forEach(item => {
     // function setActiveChar(e.target) {
 
     // }
+// Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
+var tID;
+function animate(charElement, start) {
+    if (charElement.dataset.active === 'true') {
+        let imgSize = 77
+        let position = imgSize;
+        const interval = 100;
+        tID = setInterval(() => {
+            charElement.style.backgroundPosition = `-${position}px 0px`;
+            if (position < 480) position += imgSize;
+            else position = imgSize;
+        }, interval);
+    } else clearInterval(tID)
+}
+
 
 //  NEXT UP:  CREATE CLASSES FOR THE CHARACTERS, MAKE A NEW CLASS FOR EACH CHAR. 
 //  CLASS WILL HAVE:  INDEX, ANIMATIONVAR, NAME (=CSS CLASS NAME) TO START
@@ -130,20 +146,7 @@ function setDrag(e) {
 }
 
 
-// Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
-var tID;
-function animate(obj, start) {
-    if (obj.dataset.active === 'true') {
-        let imgSize = 77
-        let position = imgSize;
-        const interval = 100;
-        tID = setInterval(() => {
-            obj.style.backgroundPosition = `-${position}px 0px`;
-            if (position < 480) position += imgSize;
-            else position = imgSize;
-        }, interval);
-    } else clearInterval(tID)
-}
+
 
 //  Mouse Drag Tutorial: https://www.kirupa.com/html5/drag.htm
 
