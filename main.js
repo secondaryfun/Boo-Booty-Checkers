@@ -69,17 +69,17 @@ boardSquares.forEach(square => {
         return charElement
     }
 
-    //  Place character on tile
-    function placeChar(square, charElement) {
-        // Place the charElement into the square.
-        square.appendChild(charElement)
+//  Place character on tile
+function placeChar(square, charElement) {
+    // Place the charElement into the square.
+    square.appendChild(charElement)
 
-        // Get the square location
-        let row = parseInt(square.dataset.y)
-        let col = parseInt(square.dataset.x)
-        // Add loc to the char object
-        boardCharList[charElement.dataset.index].loc = `${col},${row}`
-    }
+    // Get the square location
+    let row = parseInt(square.dataset.y)
+    let col = parseInt(square.dataset.x)
+    // Add loc to the char object
+    boardCharList[charElement.dataset.index].loc = `${col},${row}`
+}
 
 //  Set "On-click" event listeners
 const charElements = document.querySelectorAll('.char-element')
@@ -90,12 +90,49 @@ charElements.forEach(item => {
         let validMoves
 
         if (charElement.dataset.active === 'false') {    
-            activate(charElement)
-            getValidMoves(charElement)
+
+            activate(charElement)   //  Set charElement to active
+            validMoves = getValidMoves(charElement)  //  highlight valid moves
+            
+            // Add event listener for player to choose move.
+            let openSquares = document.querySelectorAll('.highlight')
+            console.log(openSquares)
+            openSquares.forEach(square => {
+                square.addEventListener('click', moveElement)
+            })
+
+
 
         } else deactivate(charElement)  // Inactivate the charElement
     })
 })
+//  
+//  Move charElement to target location
+function moveElement(e) {
+    e.stopPropagation()
+    charElement = ACTIVE
+    //  to move, ahve to change charElementData.loc, delete the charElement in old square, add the charElement to new square, animate the movement.
+    
+    //  Get element data.
+    charData = boardCharList[ charElement.dataset.index ]
+    let oldLoc, newLoc
+    
+    //          Get current location as array of coordinates [x,y]
+    // console.log(charData)
+    // currentLoc = charData.loc.split(',')
+    // currentLoc.forEach( (coord, i) => currentLoc[i] = parseInt(coord) )
+    // console.log(currentLoc)
+    
+    placeChar(e.target, charElement)  //  Place charElement into new div.
+    
+    // boardSquares.forEach(square => { 
+        //     if (square.dataset.y == currentLoc[0] && square.dataset.x == currentLoc[1]) console.log(square.dataset.index)  //  PLACEHOLDER FOR DELETING OLD DIV
+        // })
+        
+        // recreate charElement in targetNode
+    deactivate(charElement)
+
+}
 
 // Set 'Active' attributes: dataset.active, animation: on.
 function activate(charElement) {
@@ -127,11 +164,15 @@ function getValidMoves(charElement) {
         // set available moves as coordinate array inside move list
         availableMoves.push( [currentLoc[1]+1,currentLoc[0]-1] )
         availableMoves.push( [currentLoc[1]+1,currentLoc[0]+1] )
-        highlightMoves(availableMoves)
-
+    } else if (charData.type === 'grinder') {
+        availableMoves.push( [currentLoc[1]-1,currentLoc[0]-1] )
+        availableMoves.push( [currentLoc[1]-1,currentLoc[0]+1] )
     }
+    highlightMoves(availableMoves)
+    return availableMoves
 }    
 
+//  ADD HIGHLIGHTS
 function highlightMoves(moves) {
     moves.forEach(move => {
         //get square
@@ -143,14 +184,15 @@ function highlightMoves(moves) {
         })
     })
 }
-function endHighlights() {
-    boardSquares.forEach(square => {
-        let squareClasses = Array.from(square.classList)
-        if (squareClasses.includes('highlight')) square.classList.remove('highlight')
-    })
-}
-
-
+    function endHighlights() {
+        boardSquares.forEach(square => {
+            let squareClasses = Array.from(square.classList)
+            if (squareClasses.includes('highlight')) {
+                square.classList.remove('highlight')
+                square.removeEventListener('click', moveElement)
+            }
+        })
+    }
 
 // Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
 function animate(charElement, start) {
@@ -271,4 +313,4 @@ function setTranslate(xPos, yPos, el) {
     el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
 }
 
-console.log(boardCharList)
+// console.log(boardCharList)

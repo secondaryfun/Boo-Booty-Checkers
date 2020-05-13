@@ -35,6 +35,10 @@
     background-color: rgba(255, 136, 0, 0.644)
 }
 
+.select {
+    background-color: rgba(255, 17, 0, 0.644);
+}
+
 .picker {
     display: inline-block;
     height: 5rem !important;
