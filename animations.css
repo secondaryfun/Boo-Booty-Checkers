@@ -1,0 +1,19 @@
+.biter {
+    height: 80px;
+    width: 80px;
+    background-size: 80px;
+    background: url("images/bootyBiter-animated-r.png") 0px
+        0px;
+    background-size: cover;
+    border: 1px blue solid;
+}
+
+.grinder {
+    height: 80px;
+    width: 80px;
+    background-size: 80px;
+    background: url("images/BootyGrinder-animated-l.png") 0px
+        0px;
+    background-size: cover;
+    border: 1px blue solid;
+}
