@@ -2,6 +2,8 @@
 
 const boardSquares = document.querySelectorAll('.square')
 let boardCharList = []
+let ACTIVE
+
 
 //add character class
 function CharElementData (type, index, loc){
@@ -83,25 +85,43 @@ boardSquares.forEach(square => {
 const charElements = document.querySelectorAll('.char-element')
 charElements.forEach(item => {
     item.addEventListener('click', e => {
-        let charElement = e.target
+        const charElement = e.target
+        // console.log(charElement)
+        let validMoves
+
         if (charElement.dataset.active === 'false') {    
+            activate(charElement)
+            // charElement.dataset.active = 'true'  // Make this charElement active
+            // animate(charElement, true)  // Turn on animation
+            // getValidMoves(charElement)
 
-            charElement.dataset.active = 'true'  // Make this charElement active
-            animate(charElement, true)  // Turn on animation
-
-        } else {
-
-            charElement.dataset.active = 'false'  // Inactivate the charElement
-            animate(charElement, false)  //  Turn off animation
-
-        }
+        } else deactivate(charElement)  // Inactivate the charElement
     })
 })
+// Set 'Active' attributes: dataset.active, animation: on.
+function activate(charElement) {
+    if (ACTIVE) deactivate(ACTIVE)  //  Deactivate previous ACTIVE
 
-    // Set character as active
-    // function setActiveChar(e.target) {
+    // Add active settings
+    ACTIVE = charElement
+    ACTIVE.dataset.active = true
+    animate(ACTIVE, true)
+}
+    //  Clear active settings
+    function deactivate(charElement) {
+        charElement.dataset.active = false
+        animate(charElement, false)
+    }
 
-    // }
+function getValidMoves(charElement) {
+    //pull data
+    charData = boardCharList[ charElement.dataset.index ]
+    if (charData.type === 'biter') {
+        // console.log(charData.loc)
+    }
+}    
+
+
 // Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
 function animate(charElement, start) {
     //  Start animation
@@ -119,9 +139,6 @@ function animate(charElement, start) {
     } else clearInterval(charElement.animation)
 }
 
-
-//  NEXT UP:  CREATE CLASSES FOR THE CHARACTERS, MAKE A NEW CLASS FOR EACH CHAR. 
-//  CLASS WILL HAVE:  INDEX, ANIMATIONVAR, NAME (=CSS CLASS NAME) TO START
 
 
 //  Add event listener to each square
