@@ -31,12 +31,16 @@
     background-color: rgba(255, 136, 0, 0.644)
 }
 
+.highlight {
+    background-color: rgba(255, 136, 0, 0.644)
+}
+
 .picker {
     display: inline-block;
     height: 5rem !important;
     width: 5rem !important;
 }
 
-.movableItem {
+.char-element {
 
 }

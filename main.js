@@ -110,6 +110,7 @@ function activate(charElement) {
     function deactivate(charElement) {
         charElement.dataset.active = false
         animate(charElement, false)
+        endHighlights()
     }
 
 function getValidMoves(charElement) {
@@ -126,7 +127,7 @@ function getValidMoves(charElement) {
         // set available moves as coordinate array inside move list
         availableMoves.push( [currentLoc[1]+1,currentLoc[0]-1] )
         availableMoves.push( [currentLoc[1]+1,currentLoc[0]+1] )
-        console.log(availableMoves)
+        highlightMoves(availableMoves)
 
     }
 }    
@@ -134,9 +135,18 @@ function getValidMoves(charElement) {
 function highlightMoves(moves) {
     moves.forEach(move => {
         //get square
-        boardSquares.filter(square => {
-            if (square.dataset.y == move[0] && square.dataset.x == move[1]) null
+        boardSquares.forEach(square => {
+            
+            if (square.dataset.y == move[0] && square.dataset.x == move[1]) {
+                square.classList.add('highlight')
+            }
         })
+    })
+}
+function endHighlights() {
+    boardSquares.forEach(square => {
+        let squareClasses = Array.from(square.classList)
+        if (squareClasses.includes('highlight')) square.classList.remove('highlight')
     })
 }
 
