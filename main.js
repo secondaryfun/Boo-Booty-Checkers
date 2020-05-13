@@ -103,18 +103,20 @@ charElements.forEach(item => {
 
     // }
 // Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
-var tID;
 function animate(charElement, start) {
-    if (charElement.dataset.active === 'true') {
-        let imgSize = 77
-        let position = imgSize;
-        const interval = 100;
-        tID = setInterval(() => {
-            charElement.style.backgroundPosition = `-${position}px 0px`;
-            if (position < 480) position += imgSize;
-            else position = imgSize;
+    //  Start animation
+    if (start === true) {
+        let imgSize = 77  //  Manual entry tied to size of charElement sizes set in animations.css
+        let position = imgSize;  //  Sets the 2nd position to move the image to (first position is zero)
+        const interval = 100; //  Sets the speed of the animation
+        
+        //  Turn on the animation.  Stores animation in charElementData object.
+        charElement.animation = setInterval(() => {
+            charElement.style.backgroundPosition = `-${position}px 0px`  // Start at 0
+            if (position < 480) position += imgSize;  //  Increment by image width for each iteration
+            else position = imgSize;  //  Reset loop.
         }, interval);
-    } else clearInterval(tID)
+    } else clearInterval(charElement.animation)
 }
 
 
