@@ -1,4 +1,4 @@
-//Units:  board = the entire board.  square = each square on the board. charElement = each character placed on the board. 
+//Units:  board = the entire board.  square = each square on the board. charElement = each character placed on the board. coor = col,row as text
 
 const boardSquares = document.querySelectorAll('.square')
 let boardCharList = []
@@ -8,22 +8,22 @@ let ACTIVE
 //add character class
 function CharElementData (type, index, loc){
     this.type = type
-    this.index = index
+    this.charindex = index
     this.animation = null
     this.loc = loc
 }
 
 //  Color Board
 boardSquares.forEach(square => {
-    let index = parseInt(square.dataset.index)
+    let boardindex = parseInt(square.dataset.boardindex)
     
     // Set columns
-    if (index % 8 === 0) square.dataset.x = 8
-    else square.dataset.x = index % 8
+    if (boardindex % 8 === 0) square.dataset.x = 8
+    else square.dataset.x = boardindex % 8
     let col = parseInt(square.dataset.x)
     
     // Set rows
-    square.dataset.y = Math.ceil(index / 8)
+    square.dataset.y = Math.ceil(boardindex / 8)
     let row = parseInt(square.dataset.y)
 
     // Add colorBox class to offset boxes
@@ -33,16 +33,16 @@ boardSquares.forEach(square => {
         if (col % 2 === 0) square.classList.add('colorBox')
     }
 })
+
 //  Populate board
 boardSquares.forEach(square => {
     let row = parseInt(square.dataset.y)
     let col = parseInt(square.dataset.x)
     let charName = null;
-    
     // Set character name.
     if (row <= 3) charName = 'biter'
     else if (row >= 6) charName = 'grinder'
-
+    
     // Add characters to rows:  makeChar receives charName and coordinate location (row,column).
     if(row % 2 === 1) {
         if (col % 2 === 1 && charName) placeChar( square, makeChar(charName) )
@@ -51,43 +51,44 @@ boardSquares.forEach(square => {
         if (col % 2 === 0 && charName) placeChar( square, makeChar(charName) )
     }
 })
-    // Make Characters of char = 'name'
-    function makeChar(name) {
-        //  Build character object
-        let charIndex = boardCharList.length
-        let charData = new CharElementData(name, charIndex)
-        
-        //  Append new charElement to board list
-        boardCharList.push(charData)
 
-        //  Build new element for the DOM
-        let charElement = document.createElement('p')
-        charElement.classList.add(charData.type,'animation','char-element')
-        charElement.setAttribute('data-active', 'false')
-        charElement.setAttribute('data-index',`${charData.index}`)
-        //  Returns the DOM element.
-        return charElement
-    }
+// Make Characters of char = 'name'
+function makeChar(name) {
+    //  Build character object
+    let charindex = boardCharList.length
+    let charData = new CharElementData(name, charindex)
+    //  Append new charElement to board list
+    boardCharList.push(charData)
+    
+    //  Build new element for the DOM
+    let charElement = document.createElement('p')
+    charElement.classList.add(charData.type,'animation','char-element')
+    charElement.setAttribute('data-active', 'false')
+    charElement.setAttribute('data-charindex',`${charData.charindex}`)
+    //  Returns the DOM element.
+    return charElement
+}
 
-//  Place character on tile
+//  FUNCTION: PLACE CHAR - Description: Place charElement on square - Receives target square and charElement.
 function placeChar(square, charElement) {
     // Place the charElement into the square.
     square.appendChild(charElement)
-
+    square.dataset.char = charElement.dataset.charindex
+    
+    
     // Get the square location
     let row = parseInt(square.dataset.y)
     let col = parseInt(square.dataset.x)
     // Add loc to the char object
-    boardCharList[charElement.dataset.index].loc = `${col},${row}`
+    boardCharList[charElement.dataset.charindex].loc = `${col},${row}`
 }
 
-//  Set "On-click" event listeners
+//  FUNCTION: SELECT ELEMENT - Description: Set "On-click" event listeners
 const charElements = document.querySelectorAll('.char-element')
 charElements.forEach(item => {
     item.addEventListener('click', e => {
         const charElement = e.target
-        // console.log(charElement)
-        let validMoves
+        console.log(`character clicked: ${charElement.dataset.charindex}`)
 
         if (charElement.dataset.active === 'false') {    
 
@@ -96,7 +97,6 @@ charElements.forEach(item => {
             
             // Add event listener for player to choose move.
             let openSquares = document.querySelectorAll('.highlight')
-            console.log(openSquares)
             openSquares.forEach(square => {
                 square.addEventListener('click', moveElement)
             })
@@ -107,34 +107,21 @@ charElements.forEach(item => {
     })
 })
 //  
-//  Move charElement to target location
+//  FUNCTION: MOVE ELEMENT - Description: Move charElement to event.target location. Receives event.
 function moveElement(e) {
     e.stopPropagation()
     charElement = ACTIVE
-    //  to move, ahve to change charElementData.loc, delete the charElement in old square, add the charElement to new square, animate the movement.
-    
-    //  Get element data.
-    charData = boardCharList[ charElement.dataset.index ]
-    let oldLoc, newLoc
-    
-    //          Get current location as array of coordinates [x,y]
-    // console.log(charData)
-    // currentLoc = charData.loc.split(',')
-    // currentLoc.forEach( (coord, i) => currentLoc[i] = parseInt(coord) )
-    // console.log(currentLoc)
-    
     placeChar(e.target, charElement)  //  Place charElement into new div.
-    
-    // boardSquares.forEach(square => { 
-        //     if (square.dataset.y == currentLoc[0] && square.dataset.x == currentLoc[1]) console.log(square.dataset.index)  //  PLACEHOLDER FOR DELETING OLD DIV
-        // })
-        
-        // recreate charElement in targetNode
     deactivate(charElement)
-
+    
+    //  Still to add:  animate the movement.
+    //  ANIMATION
+    //  Get element data.
+    charData = boardCharList[ charElement.dataset.charindex ]
+    let oldLoc, newLoc
 }
 
-// Set 'Active' attributes: dataset.active, animation: on.
+// FUNCTION: SET ACTIVE ATTRIBUTES - Descriptions: Set the following: dataset.active, animation: on.
 function activate(charElement) {
     if (ACTIVE) deactivate(ACTIVE)  //  Deactivate previous ACTIVE
 
@@ -143,47 +130,80 @@ function activate(charElement) {
     ACTIVE.dataset.active = true
     animate(ACTIVE, true)
 }
-    //  Clear active settings
-    function deactivate(charElement) {
-        charElement.dataset.active = false
-        animate(charElement, false)
-        endHighlights()
-    }
+//  FUNCTION: CLEAR ACTIVE SETTINGS
+function deactivate(charElement) {
+    charElement.dataset.active = false
+    animate(charElement, false)
+    endHighlights()
+}
 
+//  FUNCTION: RETURN LIST OF VALID MOVES - Description: Returns an array of legal moves for charElement.
 function getValidMoves(charElement) {
     // Pull data for charElement.
-    charData = boardCharList[ charElement.dataset.index ]
+    charData = boardCharList[ charElement.dataset.charindex ]
         availableMoves = []
     
         // Get current location as array of coordinates [x,]
     currentLoc = charData.loc.split(',')
     currentLoc.forEach( (coord, i) => currentLoc[i] = parseInt(coord) )
-
+    console.log(`CURRENT LOC ${currentLoc}`)
     // Determine moves for top board pieces
     if (charData.type === 'biter') {
         // set available moves as coordinate array inside move list
-        availableMoves.push( [currentLoc[1]+1,currentLoc[0]-1] )
-        availableMoves.push( [currentLoc[1]+1,currentLoc[0]+1] )
+        
+        // Determine right move
+        let rightMove = [currentLoc[0]+1,currentLoc[1]+1]
+        console.log(`Right Move: ${rightMove}`)
+        let rightMoveTarget = checkSquare(rightMove)
+
+        availableMoves.push( rightMove )
+
+        // Determine left move
+        let leftMove = [currentLoc[0]-1,currentLoc[1]+1]
+        availableMoves.push( leftMove )
     } else if (charData.type === 'grinder') {
-        availableMoves.push( [currentLoc[1]-1,currentLoc[0]-1] )
-        availableMoves.push( [currentLoc[1]-1,currentLoc[0]+1] )
+        availableMoves.push( [currentLoc[0]-1,currentLoc[1]-1] )
+        availableMoves.push( [currentLoc[0]+1,currentLoc[1]-1] )
     }
-    highlightMoves(availableMoves)
+
+    highlightMoves(availableMoves)      //  Highlight the available squares.
+
     return availableMoves
 }    
 
-//  ADD HIGHLIGHTS
+//  FUNCTION: CHECK IF EMPTY SQUARE - Description: Check square and return charElement index if square contains a charElement
+function checkSquare(coorSet) {
+    
+    boardCharList.forEach(char => {
+        let coordinates = char.loc.split(",")
+        let x = parseInt(coordinates[0])
+        let y = parseInt(coordinates[1])
+        // console.log( typeof(x), typeof(y) )
+        // console.log(`char-${char.charindex} dataSet: ${x},${y} , target cell: ${coorSet[0]},${coorSet[1]}`)
+        // console.log(char.loc)
+        if (x === coorSet[0] & y === coorSet[1]) console.log('Match!')
+    })
+    return false
+}
+
+//  FUNCTION: RETURN CHAR.LOC FROM BOARD COOR
+function getBoardCoor(charElement) {
+
+}
+
+
+//  FUNCTION: ADD HIGHLIGHTS
 function highlightMoves(moves) {
     moves.forEach(move => {
         //get square
         boardSquares.forEach(square => {
-            
-            if (square.dataset.y == move[0] && square.dataset.x == move[1]) {
+            if (square.dataset.x == move[0] && square.dataset.y == move[1]) {
                 square.classList.add('highlight')
             }
         })
     })
 }
+//  FUNCTION: END HIGHLIGHTS
     function endHighlights() {
         boardSquares.forEach(square => {
             let squareClasses = Array.from(square.classList)
@@ -195,6 +215,7 @@ function highlightMoves(moves) {
     }
 
 // Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
+//  FUNCTION: ANIMATE - Descriptions: starts the animation for charElement if 'start' is true.
 function animate(charElement, start) {
     //  Start animation
     if (start === true) {
@@ -263,8 +284,8 @@ board.addEventListener("mousemove", drag, false);
 
 boardSquares.forEach(square => {
     square.addEventListener('touchend', e => {
-        dragEndTarget = e.target.dataset.index;
-        console.log(`Ending in square: ${e.target.dataset.index}`)
+        dragEndTarget = e.target.dataset.charindex;
+        console.log(`Ending in square: ${e.target.dataset.charindex}`)
     })
 })
 
@@ -313,4 +334,4 @@ function setTranslate(xPos, yPos, el) {
     el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
 }
 
-// console.log(boardCharList)
+console.log(boardCharList)
