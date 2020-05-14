@@ -1,3 +1,28 @@
+.controls {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.controlBtn {
+    width: fit-content;
+    line-height: 2rem;
+    font-weight: 600;
+    background-color: red;
+    border: 2px solid black;
+    padding: 5px;
+    display: inline-block;
+}
+.controlBtn:hover {
+    border-color: white;
+}
+
+.turn_box {
+    font-size: 3rem;
+    font-weight: 600;
+}
+
 .colorBox {
     background-color: rgba(0, 38, 255, 0.5);
 }
@@ -43,8 +68,4 @@
     display: inline-block;
     height: 5rem !important;
     width: 5rem !important;
-}
-
-.char-element {
-
 }
