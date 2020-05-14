@@ -4,13 +4,17 @@
 
 const BOARDSQUARES = Array.from(document.querySelectorAll('.square'))
 let CHARLIST = []
-let PLAYERTURN = 'grinder'
+let PLAYERTURN 
 let P1DEADPILE = []
 let P2DEADPILE = []
 let ACTIVE
 let MOVES = []
 const resetBtn = document.querySelector('#resetBtn')
 const startBtn = document.querySelector('#startBtn')
+const P1ICON = document.querySelector('#player1')
+const P2ICON = document.querySelector('#player2')
+const BOARD = document.querySelector('.board')
+
 
 //  CLASS DECLARATION - CHARACTER DATA
 function CharElementData (type, index, loc){
@@ -65,6 +69,7 @@ resetBtn.addEventListener('click',e => {
     }
     clearBoard()
     populateBoard()
+    passPlayer()
 })
 
 
@@ -81,6 +86,7 @@ jumpBtn.addEventListener('click', e => {
     }
     clearBoard()
     populateJumpTest()
+    passPlayer()
 })
 
 // ********************************** CHAR ELEMENTS CREATING **********************************
@@ -179,7 +185,6 @@ function placeChar(square, charElement) {
 function moveElement(e) {
     e.stopPropagation()
     let charElement = ACTIVE
-    console.log(`char Element: ${charElement.dataset.charindex} at moveElement.1 ${charElement.dataset.active}`)
 
     let jumpMoveCheck = false
     
@@ -203,10 +208,8 @@ function moveElement(e) {
      if (jumpMoveCheck === true) {
          removeChar(move[0].target, PLAYERTURN)  
      } 
-    console.log(`char Element: ${charElement.dataset.charindex} at moveElement.2 ${charElement.dataset.active}`)
 
     placeChar(e.target, charElement)  //  Place charElement into new div.
-    console.log(`char Element: ${charElement.dataset.charindex} at moveElement.3 ${charElement.dataset.active}`)
 
     if (jumpMoveCheck === true) showMoves(charElement, true)     
     else deactivate(charElement)
@@ -238,20 +241,16 @@ function toggleActive(charElement, num) {
 // FUNCTION: SET ACTIVE ATTRIBUTES - Descriptions: Set the following: dataset.active, animation: on.
 function activate(charElement) {
     if (ACTIVE) deactivate(ACTIVE)  //  Deactivate previous ACTIVE
-    console.log(`char Element: ${charElement.dataset.charindex} at ACTIVATE.1 ${charElement.dataset.active}`)
 
     // Add active settings
     ACTIVE = charElement
     ACTIVE.dataset.active = true
-    console.log(`char Element: ${charElement.dataset.charindex} at ACTIVATE.2 ${charElement.dataset.active}`)
     animate(ACTIVE, true)
 }
 
 //  FUNCTION: CLEAR ACTIVE SETTINGS
 function deactivate(charElement) {
-    console.log(`char Element: ${charElement.dataset.charindex} at DE-ACTIVATE.1 ${charElement.dataset.active}`)
     charElement.dataset.active = false
-    console.log(`char Element: ${charElement.dataset.charindex} at DE-ACTIVATE.2 ${charElement.dataset.active}`)
     animate(charElement, false)
     endHighlights()
 }
@@ -274,34 +273,49 @@ function animate(charElement, start) {
     } else clearInterval(charElement.animation)
 }
 
+//  FUNCTION: PICK FIRST OR SECOND 
+function pickPlayer() {
+
+}
+
 // ********************************** GAME LOGIC **********************************
 
 function showMoves(charElement, force=false) {
-    console.log(`char Element: ${charElement.dataset.charindex} at showMoves.1 ${charElement.dataset.active}`)
 
     if (charElement.dataset.active === 'false' || force) {
-        console.log('showmoves starting...')
-        console.log(`char Element: ${charElement.dataset.charindex} at showMoves.2 ${charElement.dataset.active}`)
-
-        
 
         activate(charElement)   //  Set charElement to active
-        console.log(`char Element: ${charElement.dataset.charindex} at showMoves.3 ${charElement.dataset.active}`)
-
+        console.log(MOVES.length)
         getValidMoves(charElement)  //  highlight valid moves
-        console.log(`char Element: ${charElement.dataset.charindex} at showMoves.4 ${charElement.dataset.active}`)
+        console.log(MOVES.length)
 
-        // if (MOVES.length !== 0) return false
+        if (MOVES.length === 0) {
+            deactivate(charElement)
+            return false
+        } 
         
         // EVENT LISTENER: GET PLAYER MOVE CHOICE - Description: Add event listener to highlighted squares.
         let openSquares = document.querySelectorAll('.highlight')
         openSquares.forEach(square => {
             square.addEventListener('click', moveElement)
         })
-        console.log(`char Element: ${charElement.dataset.charindex} at showMoves.5 ${charElement.dataset.active}`)
 
-    } else deactivate(charElement)  // Inactivate the charElement
-    console.log(`char Element: ${charElement.dataset.charindex} at showMoves.6 ${charElement.dataset.active}`)
+    } else {
+        deactivate(charElement)  // Inactivate the charElement
+    } 
+}
+
+function passPlayer() {
+    if (PLAYERTURN === 'grinder') {
+        PLAYERTURN = 'biter'
+        BOARD.classList.toggle('player2')
+        animate(P2ICON)
+    }
+    else {
+        PLAYERTURN = 'grinder'
+        BOARD.classList.toggle('player1')
+        animate(P1ICON)
+    }
 
 }
 
@@ -312,16 +326,18 @@ function getValidMoves(charElement) {
     MOVES = []
     
     // SubFunc = pushes valid moves to 'MOVES'
-    const getLeftRightMoves = (charData) => {        
+    const getRightMoves = (charData) => {        
         let addRow
         let addColR = 1
-        let addColL = -1
         if (charData.type === 'biter') addRow = 1
         else addRow = -1
-            
+    
         // DETERMINE RIGHT MOVES
         let rightMove = new MoveOption()
-        rightMove.loc = [ charData.loc[0] + addColR , charData.loc[1] + addRow ]  //  CHECK LOGIC IN THE MORNING!!!!!!
+        let rX = charData.loc[0] + addColR
+        let rY = charData.loc[1] + addRow
+        if (rX > 8 || rX < 1 || rY > 8 || rY < 1) return
+        rightMove.loc = [ rX , rY ]
         
         // Check for obstruction
         rightMove.target = checkSquare(rightMove)
@@ -330,16 +346,25 @@ function getValidMoves(charElement) {
         if (rightMove.target && rightMove.target.type !== charData.type) {
             //look for jump space
             rightMove.jumpCheck = true
-            rightMove.jumpLoc = [rightMove.loc[0] + addColR, rightMove.loc[1] + addRow]        //    CHECK TO SEE IF JUMPLOC IS SETTING 
+            rightMove.jumpLoc = [rightMove.loc[0] + addColR, rightMove.loc[1] + addRow]        
             rightMove.jumpTarget = checkSquare(rightMove)
             if (rightMove.jumpTarget !== false) rightMove.jumpCheck = false
         }
         MOVES.push( rightMove )
+    }
+    const getLeftMoves = (charData) => {
+        let addRow
+        let addColL = -1
+        if (charData.type === 'biter') addRow = 1
+        else addRow = -1
 
         // DETERMINE LEFT MOVES
         let leftMove = new MoveOption()
-        leftMove.loc = [ charData.loc[0] + addColL , charData.loc[1] + addRow ]  //  CHECK LOGIC IN THE MORNING!!!!!!
-        
+        let rX = charData.loc[0] + addColL
+        let rY = charData.loc[1] + addRow
+        if (rX > 8 || rX < 1 || rY > 8 || rY < 1) return
+        leftMove.loc = [ rX , rY ]
+
         // Check for obstruction
         leftMove.target = checkSquare(leftMove)
         // console.log(`target: ${leftMove.target} - type: ${leftMove.target.type} !== ${charData.type}`)
@@ -347,18 +372,19 @@ function getValidMoves(charElement) {
         if (leftMove.target && leftMove.target.type !== charData.type) {
             //look for jump space
             leftMove.jumpCheck = true
-            leftMove.jumpLoc = [leftMove.loc[0] + addColL, leftMove.loc[1] + addRow]        //    CHECK TO SEE IF JUMPLOC IS SETTING 
+            leftMove.jumpLoc = [leftMove.loc[0] + addColL, leftMove.loc[1] + addRow]       
             leftMove.jumpTarget = checkSquare(leftMove)
             if (leftMove.jumpTarget !== false) leftMove.jumpCheck = false
         }
         MOVES.push( leftMove )
     }
 
-    getLeftRightMoves(charData)
+    getLeftMoves(charData)
+    getRightMoves(charData)
     
     highlightMoves(MOVES)      //  Highlight the available squares.
 }    
-
+    
 //  FUNCTION: CHECK IF EMPTY SQUARE - Description: Check square and return charElement index if square contains a charElement
 function checkSquare(move) {
     let target = null
@@ -529,4 +555,5 @@ function setTranslate(xPos, yPos, el) {
     el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
 }
 
-populateBoard()
+
+populateJumpTest()

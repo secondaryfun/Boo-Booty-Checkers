@@ -30,6 +30,7 @@
 .board {
     background: url('../images/dungeon-1000px.jpg');
     background-size: cover;
+    box-sizing: unset;
 }
 
 .board {
@@ -40,6 +41,14 @@
     justify-content: space-between;
     align-content: space-between;
     margin: 0 auto;
+}
+
+.player1 {
+    border: silver 5px solid;
+}
+
+.player2 {
+    border: gold 5px solid;
 }
 
 .square {
