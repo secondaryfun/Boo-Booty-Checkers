@@ -13,6 +13,12 @@ function CharElementData (type, index, loc){
     this.loc = loc
 }
 
+function MoveOption (coor, target) {
+    this.loc = coor
+    this.target = target
+    this.jumpLoc = false
+}
+
 //  Color Board
 boardSquares.forEach(square => {
     let boardindex = parseInt(square.dataset.boardindex)
@@ -80,7 +86,7 @@ function placeChar(square, charElement) {
     let row = parseInt(square.dataset.y)
     let col = parseInt(square.dataset.x)
     // Add loc to the char object
-    boardCharList[charElement.dataset.charindex].loc = `${col},${row}`
+    boardCharList[charElement.dataset.charindex].loc = [col,row]
 }
 
 //  FUNCTION: SELECT ELEMENT - Description: Set "On-click" event listeners
@@ -88,7 +94,6 @@ const charElements = document.querySelectorAll('.char-element')
 charElements.forEach(item => {
     item.addEventListener('click', e => {
         const charElement = e.target
-        console.log(`character clicked: ${charElement.dataset.charindex}`)
 
         if (charElement.dataset.active === 'false') {    
 
@@ -100,9 +105,6 @@ charElements.forEach(item => {
             openSquares.forEach(square => {
                 square.addEventListener('click', moveElement)
             })
-
-
-
         } else deactivate(charElement)  // Inactivate the charElement
     })
 })
@@ -143,54 +145,68 @@ function getValidMoves(charElement) {
     charData = boardCharList[ charElement.dataset.charindex ]
         availableMoves = []
     
-        // Get current location as array of coordinates [x,]
-    currentLoc = charData.loc.split(',')
-    currentLoc.forEach( (coord, i) => currentLoc[i] = parseInt(coord) )
-    console.log(`CURRENT LOC ${currentLoc}`)
     // Determine moves for top board pieces
-    if (charData.type === 'biter') {
-        // set available moves as coordinate array inside move list
-        
+
+    const getMoves = (charData) => {        
+        let addRow
+        let addColR = 1
+        let addColL = -1
+        if (charData.type === 'biter') addRow = 1
+        else addRow = -1
+            
         // Determine right move
-        let rightMove = [currentLoc[0]+1,currentLoc[1]+1]
-        console.log(`Right Move: ${rightMove}`)
-        let rightMoveTarget = checkSquare(rightMove)
-
+        let rightMove = new MoveOption()
+        rightMove.loc = [ charData.loc[0] + addColR , charData.loc[1] + addRow ]
+        console.log(`Right Move: ${rightMove.loc}`)
+        
+        // Check for obstruction
+        rightMove.target = checkSquare(rightMove)
+        console.log(`${rightMove.target} - type: ${rightMove.target} !== ${charData.type}`)
+        
+        if (rightMove.target && rightMove.target.type !== charData.type) {
+            //look for jump space
+            console.log("we're in!")
+            rightMove.jumpMove = [rightMove.loc[0] + addColR, rightMove.loc[1] + addRow]
+            let jumpSquareFull = checkSquare(jumpMove)
+            console.log(jumpSquareFull)
+            // if(!jumpSquareFull) rightMove.loc = jumpMove
+        }
         availableMoves.push( rightMove )
-
+        
         // Determine left move
-        let leftMove = [currentLoc[0]-1,currentLoc[1]+1]
+        let leftMove = [charData.loc[0]-1,charData.loc[1]+1]
         availableMoves.push( leftMove )
-    } else if (charData.type === 'grinder') {
-        availableMoves.push( [currentLoc[0]-1,currentLoc[1]-1] )
-        availableMoves.push( [currentLoc[0]+1,currentLoc[1]-1] )
     }
 
+    getMoves(charData)
+
+    // else if (charData.type === 'grinder') {
+    //     availableMoves.push( [currentLoc[0]-1,currentLoc[1]-1] )
+    //     availableMoves.push( [currentLoc[0]+1,currentLoc[1]-1] )
+    
     highlightMoves(availableMoves)      //  Highlight the available squares.
 
     return availableMoves
 }    
 
+ 
+
 //  FUNCTION: CHECK IF EMPTY SQUARE - Description: Check square and return charElement index if square contains a charElement
-function checkSquare(coorSet) {
-    
+function checkSquare(move) {
+    let target = null
     boardCharList.forEach(char => {
-        let coordinates = char.loc.split(",")
-        let x = parseInt(coordinates[0])
-        let y = parseInt(coordinates[1])
         // console.log( typeof(x), typeof(y) )
         // console.log(`char-${char.charindex} dataSet: ${x},${y} , target cell: ${coorSet[0]},${coorSet[1]}`)
         // console.log(char.loc)
-        if (x === coorSet[0] & y === coorSet[1]) console.log('Match!')
+        if (char.loc[0] === move.loc[0] & char.loc[1] === move.loc[1]) {
+            console.log('Match!')
+            target = char
+        }
     })
-    return false
+    console.log(`target = ${target}`)
+    if (target) {return target}
+    else {return false}
 }
-
-//  FUNCTION: RETURN CHAR.LOC FROM BOARD COOR
-function getBoardCoor(charElement) {
-
-}
-
 
 //  FUNCTION: ADD HIGHLIGHTS
 function highlightMoves(moves) {
