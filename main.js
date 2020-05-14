@@ -178,7 +178,9 @@ function placeChar(square, charElement) {
 //  FUNCTION: MOVE ELEMENT - Description: Move charElement to event.target location. Receives event with event.target = target square.
 function moveElement(e) {
     e.stopPropagation()
-    charElement = ACTIVE
+    let charElement = ACTIVE
+    console.log(`char Element: ${charElement.dataset.charindex} at moveElement.1 ${charElement.dataset.active}`)
+
     let jumpMoveCheck = false
     
     // get the MOVE that matches e.target
@@ -199,50 +201,57 @@ function moveElement(e) {
     })
 
      if (jumpMoveCheck === true) {
-         console.log(`move @ jumpMoveCheck: ${move}`)
-         console.log(move)
          removeChar(move[0].target, PLAYERTURN)  
      } 
+    console.log(`char Element: ${charElement.dataset.charindex} at moveElement.2 ${charElement.dataset.active}`)
 
-     placeChar(e.target, charElement)  //  Place charElement into new div.
+    placeChar(e.target, charElement)  //  Place charElement into new div.
+    console.log(`char Element: ${charElement.dataset.charindex} at moveElement.3 ${charElement.dataset.active}`)
 
-     //  Check for new moves.
-     if (jumpMoveCheck === true) showMoves(charElement)     
-    
+    if (jumpMoveCheck === true) showMoves(charElement, true)     
+    else deactivate(charElement)
+
+
     //  Still to add:  animate the movement.
     //  ANIMATION
     //  Get element data.
-    deactivate(charElement)
+    
 }
 
-function removeChar(char, player) {
-    console.log(char)
-    // Add taken char to dead pile
-    if (player === 'biter') P1DEADPILE.push( CHARLIST[char.charindex] )
-    else P2DEADPILE.push( CHARLIST[char.charindex] )
+function removeChar(charElement, player) {
+    // Add taken charElement to dead pile
+    if (player === 'biter') P1DEADPILE.push( CHARLIST[charElement.charindex] )
+    else P2DEADPILE.push( CHARLIST[charElement.charindex] )
 
     // Remove charElement from board
-    let square = getSquareFromloc(char.loc)
-    square.dataset.char = ""
+    let square = getSquareFromloc(charElement.loc)
+    square.dataset.charElement = ""
     square.innerHTML = ""
-
-    console.log(P1DEADPILE)
-    console.log(P2DEADPILE)
 }
 // ********************************** CHAR ELEMENT GAME STATES **********************************
+
+function toggleActive(charElement, num) {
+    charElement.dataset.active = !charElement.datset.active
+    console.log(`Toggled ${num}`)
+}
 
 // FUNCTION: SET ACTIVE ATTRIBUTES - Descriptions: Set the following: dataset.active, animation: on.
 function activate(charElement) {
     if (ACTIVE) deactivate(ACTIVE)  //  Deactivate previous ACTIVE
+    console.log(`char Element: ${charElement.dataset.charindex} at ACTIVATE.1 ${charElement.dataset.active}`)
 
     // Add active settings
     ACTIVE = charElement
     ACTIVE.dataset.active = true
+    console.log(`char Element: ${charElement.dataset.charindex} at ACTIVATE.2 ${charElement.dataset.active}`)
     animate(ACTIVE, true)
 }
+
 //  FUNCTION: CLEAR ACTIVE SETTINGS
 function deactivate(charElement) {
+    console.log(`char Element: ${charElement.dataset.charindex} at DE-ACTIVATE.1 ${charElement.dataset.active}`)
     charElement.dataset.active = false
+    console.log(`char Element: ${charElement.dataset.charindex} at DE-ACTIVATE.2 ${charElement.dataset.active}`)
     animate(charElement, false)
     endHighlights()
 }
@@ -267,11 +276,20 @@ function animate(charElement, start) {
 
 // ********************************** GAME LOGIC **********************************
 
-function showMoves(charElement, square) {
-    if (charElement.dataset.active === 'false') {
+function showMoves(charElement, force=false) {
+    console.log(`char Element: ${charElement.dataset.charindex} at showMoves.1 ${charElement.dataset.active}`)
+
+    if (charElement.dataset.active === 'false' || force) {
+        console.log('showmoves starting...')
+        console.log(`char Element: ${charElement.dataset.charindex} at showMoves.2 ${charElement.dataset.active}`)
+
         
+
         activate(charElement)   //  Set charElement to active
+        console.log(`char Element: ${charElement.dataset.charindex} at showMoves.3 ${charElement.dataset.active}`)
+
         getValidMoves(charElement)  //  highlight valid moves
+        console.log(`char Element: ${charElement.dataset.charindex} at showMoves.4 ${charElement.dataset.active}`)
 
         // if (MOVES.length !== 0) return false
         
@@ -280,8 +298,11 @@ function showMoves(charElement, square) {
         openSquares.forEach(square => {
             square.addEventListener('click', moveElement)
         })
+        console.log(`char Element: ${charElement.dataset.charindex} at showMoves.5 ${charElement.dataset.active}`)
 
     } else deactivate(charElement)  // Inactivate the charElement
+    console.log(`char Element: ${charElement.dataset.charindex} at showMoves.6 ${charElement.dataset.active}`)
+
 }
 
 //  FUNCTION: RETURN LIST OF VALID MOVES - Description: Returns an array of legal moves for charElement.
@@ -391,9 +412,7 @@ function getSquareFromloc(loc) {
     let mySquare
     BOARDSQUARES.forEach(square => {
         let squareLoc = getLocFromSquare(square)
-        console.log(`squareLoc = ${squareLoc} loc = ${loc}`)
         if (loc[0] === squareLoc[0] && loc[1] === squareLoc[1]) {
-            console.log('match!')
             mySquare = square
         } 
     })
@@ -511,4 +530,3 @@ function setTranslate(xPos, yPos, el) {
 }
 
 populateBoard()
-console.log(CHARLIST)
