@@ -184,17 +184,6 @@ function placeChar(square, charElement) {
     kingMe(charElement)
 }
 
-function kingMe(charElement) {
-    char = CHARLIST[charElement.dataset.charindex]
-    if ( char.loc[1] === 8 && char.type === 'biter' ) char.king = true
-    if ( char.loc[1] === 1 && char.type === 'grinder' ) char.king = true
-    if (char.king === true) {
-        console.log(charElement)
-        charElement.classList.add('king')
-        console.log('KING ME!')
-    } 
-}
-
 //  FUNCTION: MOVE ELEMENT - Description: Move charElement to event.target location. Receives event with event.target = target square.
 function moveElement(e) {
     e.stopPropagation()
@@ -287,9 +276,16 @@ function animate(charElement, start) {
     } else clearInterval(charElement.animation)
 }
 
-//  FUNCTION: PICK FIRST OR SECOND 
-function pickPlayer() {
-
+//  FUNCTION: KING ME - Description: Adds .king = true to char entry.
+function kingMe(charElement) {
+    char = CHARLIST[charElement.dataset.charindex]
+    if ( char.loc[1] === 8 && char.type === 'biter' ) char.king = true
+    if ( char.loc[1] === 1 && char.type === 'grinder' ) char.king = true
+    if (char.king === true) {
+        console.log(charElement)
+        charElement.classList.add('king')
+        console.log('KING ME!')
+    } 
 }
 
 // ********************************** GAME LOGIC **********************************
@@ -338,11 +334,14 @@ function getValidMoves(charElement) {
     MOVES = []
     
     // SubFunc = pushes valid moves to 'MOVES'
-    const getRightMoves = (charData) => {        
+    const getRightMoves = (charData, king = false) => {        
         let addRow
         let addColR = 1
-        if (charData.type === 'biter') addRow = 1
+        if (charData.type === 'biter' ) addRow = 1
         else addRow = -1
+
+        // Set King Modifier
+        if (king) addRow = addRow * -1
     
         // DETERMINE RIGHT MOVES
         let rightMove = new MoveOption()
@@ -364,12 +363,15 @@ function getValidMoves(charElement) {
         }
         MOVES.push( rightMove )
     }
-    const getLeftMoves = (charData) => {
+    const getLeftMoves = (charData, king = false) => {
         let addRow
         let addColL = -1
         if (charData.type === 'biter') addRow = 1
         else addRow = -1
 
+        // Set King Modifier
+        if (king) addRow = addRow * -1
+        
         // DETERMINE LEFT MOVES
         let leftMove = new MoveOption()
         let rX = charData.loc[0] + addColL
@@ -393,6 +395,8 @@ function getValidMoves(charElement) {
 
     getLeftMoves(charData)
     getRightMoves(charData)
+    if (charData.king) getLeftMoves(charData, true)
+    if (charData.king) getRightMoves(charData, true)
     
     highlightMoves(MOVES)      //  Highlight the available squares.
 }    
