@@ -22,6 +22,7 @@ function CharElementData (type, index, loc){
     this.charindex = index
     this.animation = null
     this.loc = loc
+    this.king = false
 }
 
 // CLASS DECLARATION - MOVE - Description: MoveOption - one discrete move option, either right or left one square. Also shows the jump location if available.  Holds the targets (blocking charElement in target square).
@@ -173,12 +174,25 @@ function placeChar(square, charElement) {
     // Place the charElement into the target square.
     square.appendChild(charElement)
     square.dataset.char = charElement.dataset.charindex
-    
-    
+
     // Set the char.loc to the new square location
     let row = parseInt(square.dataset.y)
     let col = parseInt(square.dataset.x)
     CHARLIST[charElement.dataset.charindex].loc = [col,row]
+
+    //Determine if king
+    kingMe(charElement)
+}
+
+function kingMe(charElement) {
+    char = CHARLIST[charElement.dataset.charindex]
+    if ( char.loc[1] === 8 && char.type === 'biter' ) char.king = true
+    if ( char.loc[1] === 1 && char.type === 'grinder' ) char.king = true
+    if (char.king === true) {
+        console.log(charElement)
+        charElement.classList.add('king')
+        console.log('KING ME!')
+    } 
 }
 
 //  FUNCTION: MOVE ELEMENT - Description: Move charElement to event.target location. Receives event with event.target = target square.
@@ -285,9 +299,7 @@ function showMoves(charElement, force=false) {
     if (charElement.dataset.active === 'false' || force) {
 
         activate(charElement)   //  Set charElement to active
-        console.log(MOVES.length)
         getValidMoves(charElement)  //  highlight valid moves
-        console.log(MOVES.length)
 
         if (MOVES.length === 0) {
             deactivate(charElement)
