@@ -224,15 +224,16 @@ function moveElement(e) {
     
 }
 
-function removeChar(charElement, player) {
-    // Add taken charElement to dead pile
-    if (player === 'biter') P1DEADPILE.push( CHARLIST[charElement.charindex] )
-    else P2DEADPILE.push( CHARLIST[charElement.charindex] )
-
-    // Remove charElement from board
-    let square = getSquareFromloc(charElement.loc)
-    square.dataset.charElement = ""
+function removeChar(char, player) {
+    // Add taken char to dead pile
+    if (player === 'biter') P1DEADPILE.push( CHARLIST[char.charindex] )
+    else P2DEADPILE.push( CHARLIST[char.charindex] )
+    
+    // Remove char from board
+    let square = getSquareFromloc(char.loc)
+    square.dataset.char = ""
     square.innerHTML = ""
+    char.loc = []
 }
 // ********************************** CHAR ELEMENT GAME STATES **********************************
 
@@ -313,19 +314,19 @@ function showMoves(charElement, force=false) {
     } 
 }
 
-function passPlayer() {
-    if (PLAYERTURN === 'grinder') {
-        PLAYERTURN = 'biter'
-        BOARD.classList.toggle('player2')
-        animate(P2ICON)
-    }
-    else {
-        PLAYERTURN = 'grinder'
-        BOARD.classList.toggle('player1')
-        animate(P1ICON)
-    }
+// function passPlayer() {
+//     if (PLAYERTURN === 'grinder') {
+//         PLAYERTURN = 'biter'
+//         BOARD.classList.toggle('player2')
+//         animate(P2ICON)
+//     }
+//     else {
+//         PLAYERTURN = 'grinder'
+//         BOARD.classList.toggle('player1')
+//         animate(P1ICON)
+//     }
 
-}
+// }
 
 //  FUNCTION: RETURN LIST OF VALID MOVES - Description: Returns an array of legal moves for charElement.
 function getValidMoves(charElement) {
@@ -371,7 +372,7 @@ function getValidMoves(charElement) {
 
         // Set King Modifier
         if (king) addRow = addRow * -1
-        
+
         // DETERMINE LEFT MOVES
         let leftMove = new MoveOption()
         let rX = charData.loc[0] + addColL
