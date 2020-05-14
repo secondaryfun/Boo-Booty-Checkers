@@ -13,10 +13,13 @@ function CharElementData (type, index, loc){
     this.loc = loc
 }
 
-function MoveOption (coor, target) {
-    this.loc = coor
-    this.target = target
-    this.jumpLoc = false
+// MoveOption - one discrete move option, either right or left one square. Also shows the jump location if available.  Holds the targets (blocking charElement in target square).
+function MoveOption (coor) {
+    this.loc = coor             // Coordinates of the move
+    this.target = false        // False if loc square is empty. Holds the target charElement if not empty. 
+    this.jumpCheck = false      // False unless a jump move is possible
+    this.jumpLoc = null         // Holds the coordinate of the jump move
+    this.jumpTarget = false     // False if jump move loc square is empty, otherwise holds the target charElement
 }
 
 //  Color Board
@@ -154,27 +157,30 @@ function getValidMoves(charElement) {
         if (charData.type === 'biter') addRow = 1
         else addRow = -1
             
-        // Determine right move
+        // DETERMINE RIGHT MOVES
         let rightMove = new MoveOption()
-        rightMove.loc = [ charData.loc[0] + addColR , charData.loc[1] + addRow ]
+        rightMove.loc = [ charData.loc[0] + addColR , charData.loc[1] + addRow ]  //  CHECK LOGIC IN THE MORNING!!!!!!
         console.log(`Right Move: ${rightMove.loc}`)
         
         // Check for obstruction
         rightMove.target = checkSquare(rightMove)
-        console.log(`${rightMove.target} - type: ${rightMove.target} !== ${charData.type}`)
+        console.log(`target: ${rightMove.target} - type: ${rightMove.target.type} !== ${charData.type}`)
         
         if (rightMove.target && rightMove.target.type !== charData.type) {
             //look for jump space
-            console.log("we're in!")
-            rightMove.jumpMove = [rightMove.loc[0] + addColR, rightMove.loc[1] + addRow]
-            let jumpSquareFull = checkSquare(jumpMove)
-            console.log(jumpSquareFull)
-            // if(!jumpSquareFull) rightMove.loc = jumpMove
+            console.log("It's jump checkin' time!")
+            rightMove.jumpCheck = true
+            rightMove.jumpLoc = [rightMove.loc[0] + addColR, rightMove.loc[1] + addRow]        //    CHECK TO SEE IF JUMPLOC IS SETTING 
+            rightMove.jumpTarget = checkSquare(rightMove)
+            console.log(`move after jump: `)
+            console.log(rightMove)
+            if (rightMove.jumpTarget !== false) rightMove.jumpCheck = false
         }
         availableMoves.push( rightMove )
         
         // Determine left move
-        let leftMove = [charData.loc[0]-1,charData.loc[1]+1]
+        let leftMove = new MoveOption()
+        leftMove.loc = [ charData.loc[0] + addColL, charData.loc[1] + addRow ]
         availableMoves.push( leftMove )
     }
 
@@ -194,16 +200,17 @@ function getValidMoves(charElement) {
 //  FUNCTION: CHECK IF EMPTY SQUARE - Description: Check square and return charElement index if square contains a charElement
 function checkSquare(move) {
     let target = null
+    let moveLoc = move.loc
+    if (move.jumpCheck) moveLoc = move.jumpLoc
+    
     boardCharList.forEach(char => {
-        // console.log( typeof(x), typeof(y) )
-        // console.log(`char-${char.charindex} dataSet: ${x},${y} , target cell: ${coorSet[0]},${coorSet[1]}`)
-        // console.log(char.loc)
-        if (char.loc[0] === move.loc[0] & char.loc[1] === move.loc[1]) {
+        // console.log(`char.loc:${char.loc} - move.loc${moveLoc}`)
+        if (char.loc[0] === moveLoc[0] && char.loc[1] === moveLoc[1]) {
             console.log('Match!')
             target = char
         }
     })
-    console.log(`target = ${target}`)
+
     if (target) {return target}
     else {return false}
 }
@@ -213,8 +220,15 @@ function highlightMoves(moves) {
     moves.forEach(move => {
         //get square
         boardSquares.forEach(square => {
-            if (square.dataset.x == move[0] && square.dataset.y == move[1]) {
-                square.classList.add('highlight')
+            if (move.target === false) {
+                if (square.dataset.x == move.loc[0] && square.dataset.y == move.loc[1]) {
+                    square.classList.add('highlight')
+                }
+            }
+            if (move.jumpCheck) {
+                if (square.dataset.x == move.jumpLoc[0] && square.dataset.y == move.jumpLoc[1]) {
+                    square.classList.add('highlight')
+                }
             }
         })
     })
