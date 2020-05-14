@@ -178,9 +178,30 @@ function getValidMoves(charElement) {
         }
         availableMoves.push( rightMove )
         
-        // Determine left move
+        // // Determine left move
+        // let leftMove = new MoveOption()
+        // leftMove.loc = [ charData.loc[0] + addColL, charData.loc[1] + addRow ]
+        // availableMoves.push( leftMove )
+
+        // DETERMINE LEFT MOVES
         let leftMove = new MoveOption()
-        leftMove.loc = [ charData.loc[0] + addColL, charData.loc[1] + addRow ]
+        leftMove.loc = [ charData.loc[0] + addColL , charData.loc[1] + addRow ]  //  CHECK LOGIC IN THE MORNING!!!!!!
+        console.log(`Right Move: ${leftMove.loc}`)
+        
+        // Check for obstruction
+        leftMove.target = checkSquare(leftMove)
+        console.log(`target: ${leftMove.target} - type: ${leftMove.target.type} !== ${charData.type}`)
+        
+        if (leftMove.target && leftMove.target.type !== charData.type) {
+            //look for jump space
+            console.log("It's jump checkin' time!")
+            leftMove.jumpCheck = true
+            leftMove.jumpLoc = [leftMove.loc[0] + addColL, leftMove.loc[1] + addRow]        //    CHECK TO SEE IF JUMPLOC IS SETTING 
+            leftMove.jumpTarget = checkSquare(leftMove)
+            console.log(`move after jump: `)
+            console.log(leftMove)
+            if (leftMove.jumpTarget !== false) leftMove.jumpCheck = false
+        }
         availableMoves.push( leftMove )
     }
 
