@@ -1,6 +1,8 @@
+//  ********************************** SET VARIABLES **********************************
+
 //Units:  board = the entire board.  square = each square on the board. charElement = each character placed on the board. coor = col,row as text
 
-const boardSquares = document.querySelectorAll('.square')
+const boardSquares = Array.from(document.querySelectorAll('.square'))
 let boardCharList = []
 let p1Sideboard = []
 let p2Sideboard = []
@@ -8,23 +10,7 @@ let ACTIVE
 const resetBtn = document.querySelector('#resetBtn')
 const startBtn = document.querySelector('#startBtn')
 
-resetBtn.addEventListener('click',e => {
-    //Start Character fall animation
-    let clearBoard = () => {
-        boardCharList = []
-        boardSquares.forEach(square => {
-            console.log('clearing...')
-            square.dataset.char = ""
-            square.dataset.active = false
-            square.innerHTML = ""
-        })
-    }
-    clearBoard()
-    populateJumpTest()
-})
-
-
-//add character class
+//  CLASS DECLARATION - CHARACTER DATA
 function CharElementData (type, index, loc){
     this.type = type
     this.charindex = index
@@ -32,7 +18,7 @@ function CharElementData (type, index, loc){
     this.loc = loc
 }
 
-// MoveOption - one discrete move option, either right or left one square. Also shows the jump location if available.  Holds the targets (blocking charElement in target square).
+// CLASS DECLARATION - MOVE - Description: MoveOption - one discrete move option, either right or left one square. Also shows the jump location if available.  Holds the targets (blocking charElement in target square).
 function MoveOption (coor) {
     this.loc = coor             // Coordinates of the move
     this.target = false        // False if loc square is empty. Holds the target charElement if not empty. 
@@ -41,7 +27,7 @@ function MoveOption (coor) {
     this.jumpTarget = false     // False if jump move loc square is empty, otherwise holds the target charElement
 }
 
-//  Color Board
+//  ********************************** SETUP BOARD **********************************
 boardSquares.forEach(square => {
     let boardindex = parseInt(square.dataset.boardindex)
     
@@ -60,6 +46,39 @@ boardSquares.forEach(square => {
     } else if (row % 2 === 0) {
         if (col % 2 === 0) square.classList.add('colorBox')
     }
+})
+
+// ********************************** CONTROL BUTTONS **********************************
+
+// BUTTON: RESET BOARD
+resetBtn.addEventListener('click',e => {
+    //Start Character fall animation
+    let clearBoard = () => {
+        boardCharList = []
+        boardSquares.forEach(square => {
+            square.dataset.char = ""
+            square.dataset.active = false
+            square.innerHTML = ""
+        })
+    }
+    clearBoard()
+    populateBoard()
+})
+
+
+// BUTTON: RESET BOARD - Set to jump side game
+const jumpBtn = document.querySelector('#jumpBtn')
+jumpBtn.addEventListener('click', e => {
+    let clearBoard = () => {
+        boardCharList = []
+        boardSquares.forEach(square => {
+            square.dataset.char = ""
+            square.dataset.active = false
+            square.innerHTML = ""
+        })
+    }
+    clearBoard()
+    populateJumpTest()
 })
 
 //  FUNCTION: POPULATE BOARD
@@ -81,7 +100,7 @@ function populateBoard() {
     })
 }
 
-//  FUNCTION: POPULATE BOARD
+//  FUNCTION: POPULATE BOARD FOR TRAINING
 function populateJumpTest() {
     boardSquares.forEach(square => {
         let row = parseInt(square.dataset.y)
@@ -100,11 +119,12 @@ function populateJumpTest() {
     })
 }
 
-    // Make Characters of char = 'name'
-function makeChar(name) {
+
+// FUNCTION: MAKE CHAR - Description: Return character of 'type'
+function makeChar(type) {
     //  Build character object
     let charindex = boardCharList.length
-    let charData = new CharElementData(name, charindex)
+    let charData = new CharElementData(type, charindex)
     //  Append new charElement to board list
     boardCharList.push(charData)
     
@@ -114,7 +134,8 @@ function makeChar(name) {
     charElement.setAttribute('data-active', 'false')
     charElement.setAttribute('data-charindex',`${charData.charindex}`)
 
-    //  FUNCTION: SELECT ELEMENT - Description: Set "On-click" event listeners
+    //  !!!!!!!!!!!!!!!!!!!! PRIMARY GAME PIECE EVENT LISTENER !!!!!!!!!!!!!!!!!!!!
+    //  SELECT ELEMENT - Description: Set "On-click" event listeners
     charElement.addEventListener('click', e => {
         const charElement = e.target
 
@@ -135,8 +156,18 @@ function makeChar(name) {
     return charElement
 }
 
-//  FUNCTION: PLACE CHAR - Description: Place charElement on square - Receives target square and charElement.
+//  FUNCTION: PLACE CHAR - Description: Place charElement on square - Receives target square and charElement. - Called by populate() Funcs && moveElement()
 function placeChar(square, charElement) {
+    // Get original square
+    if (boardCharList[charElement.dataset.charindex].loc) {
+        boardSquares.forEach(square => {
+            let row = parseInt(square.dataset.y)
+            let col = parseInt(square.dataset.x)
+            // console.log(`${col} === ${boardCharList[charElement.dataset.charindex].loc[0]} && ${row} === ${boardCharList[charElement.dataset.charindex].loc[1]}`)
+            if ( col === boardCharList[charElement.dataset.charindex].loc[0] && row === boardCharList[charElement.dataset.charindex].loc[1]) square.dataset.char = ""
+            })
+        }
+    
     // Place the charElement into the square.
     square.appendChild(charElement)
     square.dataset.char = charElement.dataset.charindex
@@ -149,26 +180,7 @@ function placeChar(square, charElement) {
     boardCharList[charElement.dataset.charindex].loc = [col,row]
 }
 
-// const charElements = document.querySelectorAll('.char-element')
-// function add
-// charElements.forEach(item => {
-//     item.addEventListener('click', e => {
-//         const charElement = e.target
 
-//         if (charElement.dataset.active === 'false') {    
-
-//             activate(charElement)   //  Set charElement to active
-//             validMoves = getValidMoves(charElement)  //  highlight valid moves
-            
-//             // Add event listener for player to choose move.
-//             let openSquares = document.querySelectorAll('.highlight')
-//             openSquares.forEach(square => {
-//                 square.addEventListener('click', moveElement)
-//             })
-//         } else deactivate(charElement)  // Inactivate the charElement
-//     })
-// })
-//  
 //  FUNCTION: MOVE ELEMENT - Description: Move charElement to event.target location. Receives event.
 function moveElement(e) {
     e.stopPropagation()
@@ -436,3 +448,4 @@ function setTranslate(xPos, yPos, el) {
 }
 
 console.log(boardCharList)
+populateBoard()
