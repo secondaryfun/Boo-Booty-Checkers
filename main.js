@@ -23,6 +23,7 @@ function CharElementData (type, index, loc){
     this.animation = null
     this.loc = loc
     this.king = false
+    this.jumpMoved = false
 }
 
 // CLASS DECLARATION - MOVE - Description: MoveOption - one discrete move option, either right or left one square. Also shows the jump location if available.  Holds the targets (blocking charElement in target square).
@@ -187,8 +188,9 @@ function placeChar(square, charElement) {
 //  FUNCTION: MOVE ELEMENT - Description: Move charElement to event.target location. Receives event with event.target = target square.
 function moveElement(e) {
     e.stopPropagation()
-    let charElement = ACTIVE
-
+    let element = ACTIVE
+    
+    console.log(element)
     let jumpMoveCheck = false
     
     // get the MOVE that matches e.target
@@ -207,15 +209,17 @@ function moveElement(e) {
             }
         }  
     })
+    if (jumpMoveCheck === true) {
 
-     if (jumpMoveCheck === true) {
-         removeChar(move[0].target, PLAYERTURN)  
-     } 
+        removeChar(move[0].target, PLAYERTURN)  //  Remove the jumped character.
+         CHARLIST[element.dataset.charindex].jumpMoved = true  //  Set jump move property for showMoves() func.
+         console.log(CHARLIST[element.dataset.charindex])
+    } 
 
-    placeChar(e.target, charElement)  //  Place charElement into new div.
+    placeChar(e.target, element)  //  Place element into new div.
 
-    if (jumpMoveCheck === true) showMoves(charElement, true)     
-    else deactivate(charElement)
+    if (jumpMoveCheck === true) showMoves(element, true)     
+    else deactivate(element)
 
 
     //  Still to add:  animate the movement.
@@ -237,11 +241,6 @@ function removeChar(char, player) {
 }
 // ********************************** CHAR ELEMENT GAME STATES **********************************
 
-function toggleActive(charElement, num) {
-    charElement.dataset.active = !charElement.datset.active
-    console.log(`Toggled ${num}`)
-}
-
 // FUNCTION: SET ACTIVE ATTRIBUTES - Descriptions: Set the following: dataset.active, animation: on.
 function activate(charElement) {
     if (ACTIVE) deactivate(ACTIVE)  //  Deactivate previous ACTIVE
@@ -257,11 +256,12 @@ function deactivate(charElement) {
     charElement.dataset.active = false
     animate(charElement, false)
     endHighlights()
+    CHARLIST[charElement.dataset.charindex].jumpMoved = false
 }
 
-// Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
 //  FUNCTION: ANIMATE - Descriptions: starts the animation for charElement if 'start' is true.
 function animate(charElement, start) {
+    // Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
     //  Start animation
     if (start === true) {
         let imgSize = 77  //  Manual entry tied to size of charElement sizes set in animations.css
@@ -393,9 +393,12 @@ function getValidMoves(charElement) {
         }
         MOVES.push( leftMove )
     }
-
-    getLeftMoves(charData)
-    getRightMoves(charData)
+    console.log(`before valid moves: ${charData.jumpMoved}`)
+    //  If last move was a jump, do not get single moves.
+    if (!charData.jumpMoved) {
+        getLeftMoves(charData)
+        getRightMoves(charData)
+    }
     if (charData.king) getLeftMoves(charData, true)
     if (charData.king) getRightMoves(charData, true)
     
@@ -450,7 +453,7 @@ function endHighlights() {
 
 
 
- 
+//  FUNCTION: GET SQUARE FROM LOC - Description: Returns the square object at location [x,y]
 function getSquareFromloc(loc) {
     let mySquare
     BOARDSQUARES.forEach(square => {
@@ -462,6 +465,7 @@ function getSquareFromloc(loc) {
     return mySquare
 }
 
+//  FUNCTION: GET LOC FROM SQUARE - Description: Returns [x,y] from a square object.
 function getLocFromSquare(square) {
     let row = parseInt(square.dataset.y)
     let col = parseInt(square.dataset.x) 
@@ -497,60 +501,61 @@ function setDrag(e) {
 
 
 
+function drag() {
 
-//  Mouse Drag Tutorial: https://www.kirupa.com/html5/drag.htm
-
-let dragItem = document.querySelector(".item");
-let board = document.querySelector(".board");
-
-let active = false;
-let currentX;
-let currentY;
-let initialX;
-let initialY;
-let xOffset = 0;
-let yOffset = 0;
-let dragEndTarget;
-
-board.addEventListener("touchstart", dragStart, false);
-board.addEventListener("touchend", dragEnd, false);
-board.addEventListener("touchmove", drag, false);
-
-board.addEventListener("mousedown", dragStart, false);
-board.addEventListener("mouseup", dragEnd, false);
-board.addEventListener("mousemove", drag, false);
-
-BOARDSQUARES.forEach(square => {
-    square.addEventListener('touchend', e => {
-        dragEndTarget = e.target.dataset.charindex;
-        console.log(`Ending in square: ${e.target.dataset.charindex}`)
+    //  Mouse Drag Tutorial: https://www.kirupa.com/html5/drag.htm
+    
+    let dragItem = document.querySelector(".item");
+    let board = document.querySelector(".board");
+    
+    let active = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+    let dragEndTarget;
+    
+    board.addEventListener("touchstart", dragStart, false);
+    board.addEventListener("touchend", dragEnd, false);
+    board.addEventListener("touchmove", drag, false);
+    
+    board.addEventListener("mousedown", dragStart, false);
+    board.addEventListener("mouseup", dragEnd, false);
+    board.addEventListener("mousemove", drag, false);
+    
+    BOARDSQUARES.forEach(square => {
+        square.addEventListener('touchend', e => {
+            dragEndTarget = e.target.dataset.charindex;
+            console.log(`Ending in square: ${e.target.dataset.charindex}`)
+        })
     })
-})
-
-function dragStart(e) {
-    if (e.type === "touchstart") {
-    initialX = e.touches[0].clientX - xOffset;
-    initialY = e.touches[0].clientY - yOffset;
-    } else {
-    initialX = e.clientX - xOffset;
-    initialY = e.clientY - yOffset;
+    
+    function dragStart(e) {
+        if (e.type === "touchstart") {
+            initialX = e.touches[0].clientX - xOffset;
+            initialY = e.touches[0].clientY - yOffset;
+        } else {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+        }
+        
+        if (e.target === dragItem) {
+            active = true;
+        }
     }
-
-    if (e.target === dragItem) {
-    active = true;
-    }
-}
-
+    
 function dragEnd(e) {
     initialX = currentX;
     initialY = currentY;
-
+    
     active = false;
 }
 
 function drag(e) {
     if (active) {
-    
+        
     e.preventDefault();
     
     if (e.type === "touchmove") {
@@ -560,16 +565,17 @@ function drag(e) {
         currentX = e.clientX - initialX;
         currentY = e.clientY - initialY;
     }
-
+    
     xOffset = currentX;
     yOffset = currentY;
-
+    
     setTranslate(currentX, currentY, dragItem);
     }
 }
 
 function setTranslate(xPos, yPos, el) {
     el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+}
 }
 
 
