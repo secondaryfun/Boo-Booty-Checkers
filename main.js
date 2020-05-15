@@ -475,7 +475,7 @@ function deactivate(charElement) {
 //  FUNCTION: RESET FOR CHECKMOVES
 function restartCheckMoves(charElement) {
     endHighlights()
-    checkWin() //  Check for win
+    if (ALTERNATEPLAY) checkWin() //  Check for win
 
     showMoves(charElement, true)
 }
