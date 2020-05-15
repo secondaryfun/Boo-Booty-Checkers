@@ -41,6 +41,8 @@ function MoveOption (coor) {
 }
 
 //  ********************************** SETUP BOARD **********************************
+//  FUNCTION: BUILD BOARD - Description: Add board divs and 
+
 BOARDSQUARES.forEach(square => {
     let boardindex = parseInt(square.dataset.boardindex)
     
@@ -111,6 +113,8 @@ JUMPBTN.addEventListener('click', e => {
     
     clearBoard()
     populateJumpTest()
+    loadInstructions()
+    startCheckers()
 })
 
 // ********************************** GAME MODE: CHECKERS **********************************
@@ -140,24 +144,28 @@ function loadInstructions() {
     MODAL.classList.toggle('hidden')
 
     INSTRUCTIONS.textContent = `
-    The Grinders go first. Click a piece to show possible moves. Click a highlighted square to move the active piece to that square. /n Game ends when only one player's pieces are left on the board.
+    The Grinders go first. Click a piece to show possible moves. Click a highlighted square to move the active piece to that square. Game ends when only one player's pieces are left on the board.
     `
     CHARLIST.forEach(char => {
         if (char.type === 'grinder') animate(char.charElement, true)
     })
 
+    BOARD.addEventListener('click', closeInstructions)
     MODAL.addEventListener('click', closeInstructions)
+   
 }
 
 //  FUNCTION: CLOSE INSTRUCTIONS
 function closeInstructions(e) {
     MODAL.classList.toggle('hidden')
-    
     CHARLIST.forEach(char => {
         if (char.type === 'grinder') animate(char.charElement, false)
     })
-
+    
     MODAL.removeEventListener('click', closeInstructions)
+    BOARD.removeEventListener('click', closeInstructions)
+    
+    PLAYERTURN++
 }
 
 function getCharfromSquare(square) {
@@ -167,17 +175,15 @@ function getCharfromSquare(square) {
 
 //  FUNCTION: START GAME - Description: Starts the game loop.
 function startCheckers() {
-    PLAYERTURN++
     ALTERNATEPLAY = true
     P1ICON.classList.toggle('king')
 }
 
-// ********************************** GAME MODE: TRAINING **********************************
+// ********************************** GAME MODE: PRACTICE **********************************
 
-//  FUNCTION: POPULATE BOARD FOR TRAINING
+//  FUNCTION: POPULATE BOARD FOR PRACTICE
 function populateJumpTest() {
-    ALTERNATEPLAY = false
-    
+       
     BOARDSQUARES.forEach(square => {
         let row = parseInt(square.dataset.y)
         let col = parseInt(square.dataset.x)
@@ -202,7 +208,7 @@ function showMoves(charElement, force=false) {
 
     if (charElement.dataset.active === 'false' || force) {
         if (ALTERNATEPLAY === true) {
-            if (PLAYERTURN % 2 === 1) {
+            if (PLAYERTURN % 2 === 1 || PLAYERTURN === 0) {
                 if(CHARLIST[charElement.dataset.charindex].type === 'biter') return
             } else if (CHARLIST[charElement.dataset.charindex].type === 'grinder') return
         }
@@ -481,20 +487,23 @@ function restartCheckMoves(charElement) {
 
 //  FUNCTION: ANIMATE - Descriptions: starts the animation for charElement if 'start' is true.
 function animate(charElement, start) {
-    
+    char = CHARLIST[charElement.dataset.charindex]
     //  Start animation
-    if (start === true) {
+    if (start === true && !char.animation) {
         let imgSize = 77  //  Manual entry tied to size of charElement sizes set in animations.css
         let position = imgSize;  //  Sets the 2nd position to move the image to (first position is zero)
         const interval = 100; //  Sets the speed of the animation
         
         //  Turn on the animation.  Stores animation in charElementData object.
-        charElement.animation = setInterval(() => {
+        char.animation = setInterval(() => {
             charElement.style.backgroundPosition = `-${position}px 0px`  // Start at 0
             if (position < 480) position += imgSize;  //  Increment by image width for each iteration
             else position = imgSize;  //  Reset loop.
         }, interval);
-    } else clearInterval(charElement.animation)
+    } else {
+        clearInterval(char.animation)
+        char.animation = null
+    }
 }
 
 //  FUNCTION: KING ME - Description: Adds .king = true to char entry.
