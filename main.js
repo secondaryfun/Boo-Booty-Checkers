@@ -20,7 +20,6 @@ const MODAL = document.querySelector('.modal')
 const INSTRUCTIONS = document.querySelector('.instructions')
 const JUMPBTN = document.querySelector('#jumpBtn')
 
-
 //  CLASS DECLARATION - CHARACTER DATA
 function CharElementData (type, index, loc){
     this.type = type
@@ -467,7 +466,7 @@ function activate(charElement) {
 function deactivate(charElement) {
     charElement.dataset.active = false
     
-    animate(char.charElement, false)
+    animate(charElement, false)
     endHighlights()
     CHARLIST[charElement.dataset.charindex].jumpMoved = false
 }
