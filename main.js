@@ -139,8 +139,6 @@ const INSTRUCTIONS = document.querySelector('.instructions')
 function loadInstructions() {
     MODAL.classList.toggle('hidden')
 
-    MODAL.style.background = 'green'
-
     INSTRUCTIONS.textContent = `
     The Grinders go first. Click a piece to show possible moves. Click a highlighted square to move the active piece to that square. /n Game ends when only one player's pieces are left on the board.
     `
@@ -178,7 +176,7 @@ function startCheckers() {
 
 //  FUNCTION: POPULATE BOARD FOR TRAINING
 function populateJumpTest() {
-    ALTERNATEPLAY = true
+    ALTERNATEPLAY = false
     
     BOARDSQUARES.forEach(square => {
         let row = parseInt(square.dataset.y)

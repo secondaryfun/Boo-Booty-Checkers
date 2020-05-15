@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap');
+
 * {
     box-sizing: border-box;
     text-align: center;
@@ -5,7 +7,8 @@
 }
 
 body {
-  
+    background: url('../images/texture-background.jpg');
+    background-size: 100% 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -13,6 +16,36 @@ body {
     background-color: rgba(1, 164, 251, 0.8)
     
 }
+
+.body-wrapper {
+    background: url('../images/Starfire-left-edge.png');
+    background-size: contain;
+    background-position: bottom 0% left 0%;
+    background-repeat: no-repeat;
+    border-radius: .5rem;
+    height: 100%;
+    width: 100%;
+}
+
+section {
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
+h1, h2, h3 {
+    font-family: 'Press Start 2P', cursive;
+}
+
+header > h1 {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 2rem;
+    color: white;
+    margin: 0;
+    margin-bottom: 1rem;
+
+}
+
 
 .results {
     font-size: 4rem;
@@ -26,6 +59,23 @@ body {
 
 }
 
+ .modal {
+    position: absolute;
+    top: 25%;
+    width: 30vh;
+    height: 30vh;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    background-color: rgba(251, 38, 1, 0.835);
+    border-radius: .5rem; 
+    padding: 0 1rem;
+} 
+
+.modal p {
+    text-align: justify;
+}
+
 .hidden {
-    display: none;
+    display: none !important; 
 }
