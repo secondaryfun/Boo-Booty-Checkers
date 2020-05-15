@@ -4,12 +4,13 @@
 
 const BOARDSQUARES = Array.from(document.querySelectorAll('.square'))
 let CHARLIST = []
-let PLAYERTURN 
+let PLAYERTURN = 0
 let P1DEADPILE = []
 let P2DEADPILE = []
 let ACTIVE //   The active charElement  -  Needed for moveElement() due to embedded event listener in showMoves()
 let ACTIVECHAR  //  The active char.  Used only for Console Logging.
 let MOVES = []
+let ALTERNATEPLAY = false
 const resetBtn = document.querySelector('#resetBtn')
 const startBtn = document.querySelector('#startBtn')
 const P1ICON = document.querySelector('#player1')
@@ -25,6 +26,7 @@ function CharElementData (type, index, loc){
     this.loc = loc
     this.king = false
     this.jumpMoved = false
+    this.charElement = null
 }
 
 // CLASS DECLARATION - MOVE - Description: MoveOption - one discrete move option, either right or left one square. Also shows the jump location if available.  Holds the targets (blocking charElement in target square).
@@ -57,6 +59,31 @@ BOARDSQUARES.forEach(square => {
     }
 })
 
+// FUNCTION: MAKE CHAR - Description: Return character of 'type'
+function makeChar(type) {
+    //  Build character object
+    let charindex = CHARLIST.length
+    let char = new CharElementData(type, charindex)
+    //  Append new charElement to board list
+    CHARLIST.push(char)
+    
+    //  Build new element for the DOM
+    let charElement = document.createElement('p')
+    charElement.classList.add(char.type,'animation','char-element')
+    charElement.setAttribute('data-active', 'false')
+    charElement.setAttribute('data-charindex',`${char.charindex}`)
+    char.charElement = charElement
+
+    //  SELECT ELEMENT EVENT LISTENER- Description: Set "On-click" event listeners
+    charElement.addEventListener('click', e => {
+        const charElement = e.target
+        showMoves(charElement)
+    })
+    
+    //  Returns the DOM element.
+    return charElement
+}
+
 //  FUNCTION: CLEAR BOARD - Description: Removes all chars from the board and memory.
 function clearBoard() {
     CHARLIST = []
@@ -73,9 +100,9 @@ resetBtn.addEventListener('click',e => {
 
     clearBoard()
     populateBoard()
-    passPlayer()
+    loadInstructions()
+    startCheckers()
 })
-
 
 // BUTTON: RESET BOARD - Set to jump side game
 const jumpBtn = document.querySelector('#jumpBtn')
@@ -86,8 +113,6 @@ jumpBtn.addEventListener('click', e => {
 })
 
 // ********************************** GAME MODE: CHECKERS **********************************
-// choosePlayer
-
 
 //  FUNCTION: POPULATE BOARD
 function populateBoard() {
@@ -108,10 +133,53 @@ function populateBoard() {
     })
 }
 
+// FUNCTION: LOAD INSTRUCTIONS - CHECKERS 
+const MODAL = document.querySelector('.modal')
+const INSTRUCTIONS = document.querySelector('.instructions')
+function loadInstructions() {
+    MODAL.classList.toggle('hidden')
+
+    MODAL.style.background = 'green'
+
+    INSTRUCTIONS.textContent = `
+    The Grinders go first. Click a piece to show possible moves. Click a highlighted square to move the active piece to that square. /n Game ends when only one player's pieces are left on the board.
+    `
+    CHARLIST.forEach(char => {
+        if (char.type === 'grinder') animate(char.charElement, true)
+    })
+
+    MODAL.addEventListener('click', closeInstructions)
+}
+
+//  FUNCTION: CLOSE INSTRUCTIONS
+function closeInstructions(e) {
+    MODAL.classList.toggle('hidden')
+    
+    CHARLIST.forEach(char => {
+        if (char.type === 'grinder') animate(char.charElement, false)
+    })
+
+    MODAL.removeEventListener('click', closeInstructions)
+}
+
+function getCharfromSquare(square) {
+    let charindex = parseInt(square.dataset.char)
+    return CHARLIST[charindex]
+}
+
+//  FUNCTION: START GAME - Description: Starts the game loop.
+function startCheckers() {
+    PLAYERTURN++
+    ALTERNATEPLAY = true
+    P1ICON.classList.toggle('king')
+}
+
 // ********************************** GAME MODE: TRAINING **********************************
 
 //  FUNCTION: POPULATE BOARD FOR TRAINING
 function populateJumpTest() {
+    ALTERNATEPLAY = true
+    
     BOARDSQUARES.forEach(square => {
         let row = parseInt(square.dataset.y)
         let col = parseInt(square.dataset.x)
@@ -122,64 +190,21 @@ function populateJumpTest() {
         
         // Add characters to rows:  makeChar receives charName and coordinate location (row,column).
         if(row % 2 === 1) {
-            if (col % 2 === 1 && charName && ( row === 4 || row === 5 || row === 2 || row === 7)) placeChar( square, makeChar(charName) )
+            // if (col === 5 && charName && ( row === 4 || row === 5 || row === 2 || row === 7)) placeChar( square, makeChar(charName) )       //  King Testing
+            if (col === 5 && charName && ( row === 4 || row === 5 )) placeChar( square, makeChar(charName) )       //  Win Testing
         } else if (row % 2 === 0) {
-            if (col % 2 === 0 && charName && ( row === 4 || row === 5 || row === 2 || row === 7)) placeChar( square, makeChar(charName) )
+            // if (col % 2 === 0 && charName && ( row === 4 || row === 5 || row === 2 || row === 7)) placeChar( square, makeChar(charName) )  //  King Testing
+            if (col === 4 && charName && ( row === 4 || row === 5)) placeChar( square, makeChar(charName) )   //  Win Testing
         }
     })
 }
 
-// FUNCTION: MAKE CHAR - Description: Return character of 'type'
-function makeChar(type) {
-    //  Build character object
-    let charindex = CHARLIST.length
-    let charData = new CharElementData(type, charindex)
-    //  Append new charElement to board list
-    CHARLIST.push(charData)
-    
-    //  Build new element for the DOM
-    let charElement = document.createElement('p')
-    charElement.classList.add(charData.type,'animation','char-element')
-    charElement.setAttribute('data-active', 'false')
-    charElement.setAttribute('data-charindex',`${charData.charindex}`)
 
-    //  SELECT ELEMENT EVENT LISTENER- Description: Set "On-click" event listeners
-    charElement.addEventListener('click', e => {
-        const charElement = e.target
-        showMoves(charElement)
-    })
-    
-    //  Returns the DOM element.
-    return charElement
-}
 
 
 
 
 // ********************************** CHAR ELEMENT MOVEMENT **********************************
-
-//  FUNCTION: PLACE CHAR - Description: Place charElement on square - Receives target square and charElement. - Called by populate() Funcs && moveElement()
-function placeChar(square, charElement) {
-    // Remove dataset.char charindex from original square.
-    if (CHARLIST[charElement.dataset.charindex].loc) {
-        BOARDSQUARES.forEach(square => {
-            let row = parseInt(square.dataset.y)
-            let col = parseInt(square.dataset.x)
-            if ( col === CHARLIST[charElement.dataset.charindex].loc[0] && row === CHARLIST[charElement.dataset.charindex].loc[1]) square.dataset.char = ""
-            })
-        }
-    
-    // Place the charElement into the target square.
-    square.appendChild(charElement)
-    square.dataset.char = charElement.dataset.charindex
-
-    // Set the char.loc to the new square location
-    let loc = getLocFromSquare(square)
-    CHARLIST[charElement.dataset.charindex].loc = loc
-
-    //Determine if king
-    kingMe(charElement)
-}
 
 //  FUNCTION: MOVE ELEMENT - Description: Move charElement to event.target location. Receives event with event.target = target square.
 function moveElement(e) {
@@ -215,13 +240,69 @@ function moveElement(e) {
     else {
         console.log(`5 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ moveElement.4 ${ACTIVECHAR.jumpMoved}`)
         deactivate(element)
-    } 
 
+        //  Set end of turn conditions.
+        if (ALTERNATEPLAY) {
+            PLAYERTURN++
+            
+            P1ICON.classList.toggle('king')
+            P2ICON.classList.toggle('king')
+             
+            //  Turn off player guide after 2 turns
+            if (PLAYERTURN > 2) {
+                if (PLAYERTURN % 2 === 1)
+                CHARLIST.forEach(char => {
+                    animate(char.charElement, false)
+                })
+            } 
+
+            checkWin() //  Check for win
+        }
+    } 
+}
+// FUNCTION: CHECK WIN - Description: If a win condition exists, ends the game.
+function checkWin() {
+    let winner
+    console.log('winner!')
+
+    if (P1DEADPILE.length >= CHARLIST.length / 2) winner = 'Player Two'
+    if (P2DEADPILE.length >= CHARLIST.length / 2) winner = 'Player One'
+
+    if (winner) {
+        console.log('winner!')
+        MODAL.querySelector('h1').textContent = `${winner} Wins!`
+        MODAL.querySelector('p').textContent = ''
+        MODAL.classList.toggle('hidden')
+    }
 
     //  Still to add:  animate the movement.
     //  ANIMATION
     //  Get element data.
     
+}
+
+//  FUNCTION: PLACE CHAR - Description: Place charElement on square - Receives target square and charElement. - Called by populate() Funcs && moveElement()
+function placeChar(square, charElement) {
+    // Remove dataset.char charindex from original square.
+    if (CHARLIST[charElement.dataset.charindex].loc) {
+        BOARDSQUARES.forEach(square => {
+            let row = parseInt(square.dataset.y)
+            let col = parseInt(square.dataset.x)
+            if ( col === CHARLIST[charElement.dataset.charindex].loc[0] && row === CHARLIST[charElement.dataset.charindex].loc[1]) square.dataset.char = ""
+            })
+        }
+    
+    // Place the charElement into the target square.
+    square.appendChild(charElement)
+    square.dataset.char = charElement.dataset.charindex
+
+    // Set the char.loc to the new square location
+    let loc = getLocFromSquare(square)
+    CHARLIST[charElement.dataset.charindex].loc = loc
+
+
+    //Determine if king
+    kingMe(charElement)
 }
 
 //  FUNCTION: REMOVE CHAR - Description: Removes char from the board and places char into player's dead pile.
@@ -263,7 +344,8 @@ function activate(charElement) {
 function deactivate(charElement) {
     console.log(`6 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ de-activate.1 ${ACTIVECHAR.jumpMoved}`)
     charElement.dataset.active = false
-    animate(charElement, false)
+    
+    animate(char.charElement, false)
     endHighlights()
     CHARLIST[charElement.dataset.charindex].jumpMoved = false
     console.log(`6 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ de-activate.2 ${ACTIVECHAR.jumpMoved}`)
@@ -272,12 +354,15 @@ function deactivate(charElement) {
 //  FUNCTION: RESET FOR CHECKMOVES
 function restartCheckMoves(charElement) {
     endHighlights()
+    checkWin() //  Check for win
+
     showMoves(charElement, true)
 }
 
 //  FUNCTION: ANIMATE - Descriptions: starts the animation for charElement if 'start' is true.
 function animate(charElement, start) {
     // Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
+    
     //  Start animation
     if (start === true) {
         let imgSize = 77  //  Manual entry tied to size of charElement sizes set in animations.css
@@ -308,9 +393,14 @@ function kingMe(charElement) {
 // ********************************** GAME LOGIC **********************************
 //  FUNCTION: SHOW MOVES - Description: When char is clicked, showMoves runs and highlights characters available moves.
 function showMoves(charElement, force=false) {
+    char = CHARLIST[ charElement.dataset.charindex ]
 
     if (charElement.dataset.active === 'false' || force) {
-
+        if (ALTERNATEPLAY === true) {
+            if (PLAYERTURN % 2 === 1) {
+                if(CHARLIST[charElement.dataset.charindex].type === 'biter') return
+            } else if (CHARLIST[charElement.dataset.charindex].type === 'grinder') return
+        }
         activate(charElement)   //  Set charElement to active
         console.log(`2 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ showMoves.1 ${ACTIVECHAR.jumpMoved}`)
 
@@ -351,15 +441,15 @@ function passPlayer() {
 //  FUNCTION: RETURN LIST OF VALID MOVES - Description: Returns an array of legal moves for charElement.
 function getValidMoves(charElement) {
     // Pull data for charElement.
-    charData = CHARLIST[ charElement.dataset.charindex ]
+    char = CHARLIST[ charElement.dataset.charindex ]
     MOVES = []
     console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.1 ${ACTIVECHAR.jumpMoved}`)
 
     // SubFunc = pushes valid moves to 'MOVES'
-    const getMoves = (charData, xDir=1, king = false) => {
+    const getMoves = (char, xDir=1, king = false) => {
         let addRow
         let addColL = xDir
-        if (charData.type === 'biter') addRow = 1
+        if (char.type === 'biter') addRow = 1
         else addRow = -1
 
         // Set King Modifier
@@ -367,16 +457,16 @@ function getValidMoves(charElement) {
 
         // DETERMINE LEFT MOVES
         let leftMove = new MoveOption()
-        let rX = charData.loc[0] + addColL
-        let rY = charData.loc[1] + addRow
+        let rX = char.loc[0] + addColL
+        let rY = char.loc[1] + addRow
         if (rX > 8 || rX < 1 || rY > 8 || rY < 1) return
         leftMove.loc = [ rX , rY ]
 
         // Check for obstruction
         leftMove.target = checkSquare(leftMove)
-        // console.log(`target: ${leftMove.target} - type: ${leftMove.target.type} !== ${charData.type}`)
+        // console.log(`target: ${leftMove.target} - type: ${leftMove.target.type} !== ${char.type}`)
         
-        if (leftMove.target && leftMove.target.type !== charData.type) {
+        if (leftMove.target && leftMove.target.type !== char.type) {
             //look for jump space
             leftMove.jumpCheck = true
             rX = leftMove.loc[0] + addColL, 
@@ -391,19 +481,19 @@ function getValidMoves(charElement) {
         MOVES.push( leftMove )
     }
     console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.2 ${ACTIVECHAR.jumpMoved}`)
-    console.log(`3.a charData @ getValidMoves - ie, the point ${ACTIVECHAR.jumpMoved}`)
+    console.log(`3.a char @ getValidMoves - ie, the point ${ACTIVECHAR.jumpMoved}`)
 
     console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.3 ${ACTIVECHAR.jumpMoved}`)
-    getMoves(charData, 1)  //  Get right move
-    getMoves(charData, -1)  //  Get left move
-    if (charData.king) getMoves(charData, 1, true)  //  Get right jump move
-    if (charData.king) getMoves(charData, -1, true)  //  Get left jump move
+    getMoves(char, 1)  //  Get right move
+    getMoves(char, -1)  //  Get left move
+    if (char.king) getMoves(char, 1, true)  //  Get right jump move
+    if (char.king) getMoves(char, -1, true)  //  Get left jump move
     
     console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.4 ${ACTIVECHAR.jumpMoved}`)
         
     //Validate moves based on char condition
     console.log(MOVES)
-    if (charData.jumpMoved) {
+    if (char.jumpMoved) {
         let filteredMoves = MOVES.filter( (move) => {
             if (move.jumpCheck === true) return move
         })
@@ -588,6 +678,3 @@ function setTranslate(xPos, yPos, el) {
     el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
 }
 }
-
-
-populateJumpTest()
