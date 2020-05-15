@@ -7,7 +7,8 @@ let CHARLIST = []
 let PLAYERTURN 
 let P1DEADPILE = []
 let P2DEADPILE = []
-let ACTIVE
+let ACTIVE //   The active charElement  -  Needed for moveElement() due to embedded event listener in showMoves()
+let ACTIVECHAR  //  The active char.  Used only for Console Logging.
 let MOVES = []
 const resetBtn = document.querySelector('#resetBtn')
 const startBtn = document.querySelector('#startBtn')
@@ -88,7 +89,6 @@ jumpBtn.addEventListener('click', e => {
     }
     clearBoard()
     populateJumpTest()
-    passPlayer()
 })
 
 // ********************************** CHAR ELEMENTS CREATING **********************************
@@ -167,7 +167,6 @@ function placeChar(square, charElement) {
         BOARDSQUARES.forEach(square => {
             let row = parseInt(square.dataset.y)
             let col = parseInt(square.dataset.x)
-            // console.log(`${col} === ${CHARLIST[charElement.dataset.charindex].loc[0]} && ${row} === ${CHARLIST[charElement.dataset.charindex].loc[1]}`)
             if ( col === CHARLIST[charElement.dataset.charindex].loc[0] && row === CHARLIST[charElement.dataset.charindex].loc[1]) square.dataset.char = ""
             })
         }
@@ -177,9 +176,8 @@ function placeChar(square, charElement) {
     square.dataset.char = charElement.dataset.charindex
 
     // Set the char.loc to the new square location
-    let row = parseInt(square.dataset.y)
-    let col = parseInt(square.dataset.x)
-    CHARLIST[charElement.dataset.charindex].loc = [col,row]
+    let loc = getLocFromSquare(square)
+    CHARLIST[charElement.dataset.charindex].loc = loc
 
     //Determine if king
     kingMe(charElement)
@@ -189,37 +187,37 @@ function placeChar(square, charElement) {
 function moveElement(e) {
     e.stopPropagation()
     let element = ACTIVE
-    
-    console.log(element)
-    let jumpMoveCheck = false
+    let char = CHARLIST[ACTIVE.dataset.charindex]
+    console.log(`5 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ moveElement.1 ${ACTIVECHAR.jumpMoved}`)
     
     // get the MOVE that matches e.target
     let loc = getLocFromSquare(e.target)
-
+    
     // check for Jump Move
     let move = MOVES.filter(move => {
         if (move.loc[0] === loc[0] && move.loc[1] === loc[1]) {
-            jumpMoveCheck = false
+            char.jumpMoved = false
             return move
         }
         else if (move.jumpLoc) {
             if (move.jumpLoc[0] === loc[0] && move.jumpLoc[1] === loc[1]) {
-                jumpMoveCheck = true
+                // jumpMoveCheck = true
+                char.jumpMoved = true
                 return move
             }
         }  
     })
-    if (jumpMoveCheck === true) {
-
-        removeChar(move[0].target, PLAYERTURN)  //  Remove the jumped character.
-         CHARLIST[element.dataset.charindex].jumpMoved = true  //  Set jump move property for showMoves() func.
-         console.log(CHARLIST[element.dataset.charindex])
-    } 
-
+    console.log(`5 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ moveElement.2 ${ACTIVECHAR.jumpMoved}`)
+    if (char.jumpMoved === true) removeChar(move[0].target, PLAYERTURN)  //  Remove the jumped character.
+    
     placeChar(e.target, element)  //  Place element into new div.
+    console.log(`5 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ moveElement.3 ${ACTIVECHAR.jumpMoved}`)
 
-    if (jumpMoveCheck === true) showMoves(element, true)     
-    else deactivate(element)
+    if (char.jumpMoved === true) restartCheckMoves(element)
+    else {
+        console.log(`5 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ moveElement.4 ${ACTIVECHAR.jumpMoved}`)
+        deactivate(element)
+    } 
 
 
     //  Still to add:  animate the movement.
@@ -232,6 +230,7 @@ function removeChar(char, player) {
     // Add taken char to dead pile
     if (player === 'biter') P1DEADPILE.push( CHARLIST[char.charindex] )
     else P2DEADPILE.push( CHARLIST[char.charindex] )
+    console.log(char)
     
     // Remove char from board
     let square = getSquareFromloc(char.loc)
@@ -243,20 +242,38 @@ function removeChar(char, player) {
 
 // FUNCTION: SET ACTIVE ATTRIBUTES - Descriptions: Set the following: dataset.active, animation: on.
 function activate(charElement) {
-    if (ACTIVE) deactivate(ACTIVE)  //  Deactivate previous ACTIVE
-
+    if (ACTIVECHAR) console.log(`1 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ activate.1 ${ACTIVECHAR.jumpMoved}`)
+    if (ACTIVE) {
+        console.log(`Is charElement already active? - ${CHARLIST[charElement.dataset.charindex].charindex} === ${ACTIVECHAR.charindex}`)
+        if (CHARLIST[charElement.dataset.charindex].charindex === ACTIVECHAR.charindex) return
+        deactivate(ACTIVE)  //  Deactivate previous ACTIVE
+        } 
+    
+    console.log(CHARLIST[charElement.dataset.charindex])
     // Add active settings
     ACTIVE = charElement
     ACTIVE.dataset.active = true
+    ACTIVECHAR = CHARLIST[charElement.dataset.charindex]
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    console.log(`1 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ activate.2 ${ACTIVECHAR.jumpMoved}`)
     animate(ACTIVE, true)
 }
 
 //  FUNCTION: CLEAR ACTIVE SETTINGS
 function deactivate(charElement) {
+    console.log(`6 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ de-activate.1 ${ACTIVECHAR.jumpMoved}`)
     charElement.dataset.active = false
     animate(charElement, false)
     endHighlights()
     CHARLIST[charElement.dataset.charindex].jumpMoved = false
+    console.log(`6 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ de-activate.2 ${ACTIVECHAR.jumpMoved}`)
+}
+
+//  FUNCTION: RESET FOR CHECKMOVES
+function restartCheckMoves(charElement) {
+    endHighlights()
+    showMoves(charElement, true)
 }
 
 //  FUNCTION: ANIMATE - Descriptions: starts the animation for charElement if 'start' is true.
@@ -296,13 +313,17 @@ function showMoves(charElement, force=false) {
     if (charElement.dataset.active === 'false' || force) {
 
         activate(charElement)   //  Set charElement to active
+        console.log(`2 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ showMoves.1 ${ACTIVECHAR.jumpMoved}`)
+
         getValidMoves(charElement)  //  highlight valid moves
+        console.log(`4 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ showMoves.2 ${ACTIVECHAR.jumpMoved}`)
 
         if (MOVES.length === 0) {
             deactivate(charElement)
             return false
         } 
-        
+        console.log(`4 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ showMoves.3 ${ACTIVECHAR.jumpMoved}`)
+
         // EVENT LISTENER: GET PLAYER MOVE CHOICE - Description: Add event listener to highlighted squares.
         let openSquares = document.querySelectorAll('.highlight')
         openSquares.forEach(square => {
@@ -333,7 +354,8 @@ function getValidMoves(charElement) {
     // Pull data for charElement.
     charData = CHARLIST[ charElement.dataset.charindex ]
     MOVES = []
-    
+    console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.1 ${ACTIVECHAR.jumpMoved}`)
+
     // SubFunc = pushes valid moves to 'MOVES'
     const getRightMoves = (charData, king = false) => {        
         let addRow
@@ -362,6 +384,8 @@ function getValidMoves(charElement) {
             rightMove.jumpTarget = checkSquare(rightMove)
             if (rightMove.jumpTarget !== false) rightMove.jumpCheck = false
         }
+        console.log(MOVES)
+
         MOVES.push( rightMove )
     }
     const getLeftMoves = (charData, king = false) => {
@@ -391,17 +415,30 @@ function getValidMoves(charElement) {
             leftMove.jumpTarget = checkSquare(leftMove)
             if (leftMove.jumpTarget !== false) leftMove.jumpCheck = false
         }
+        console.log(MOVES)
         MOVES.push( leftMove )
     }
-    console.log(`before valid moves: ${charData.jumpMoved}`)
+    console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.2 ${ACTIVECHAR.jumpMoved}`)
+    console.log(`3.a charData @ getValidMoves - ie, the point ${ACTIVECHAR.jumpMoved}`)
+
     //  If last move was a jump, do not get single moves.
-    if (!charData.jumpMoved) {
-        getLeftMoves(charData)
-        getRightMoves(charData)
-    }
+    getLeftMoves(charData)
+    getRightMoves(charData)
+    console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.3 ${ACTIVECHAR.jumpMoved}`)
     if (charData.king) getLeftMoves(charData, true)
     if (charData.king) getRightMoves(charData, true)
+    console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.4 ${ACTIVECHAR.jumpMoved}`)
     
+    //Validate moves based on char condition
+    console.log(MOVES)
+    if (charData.jumpMoved) {
+        let filteredMoves = MOVES.filter( (move) => {
+            if (move.jumpCheck === true) return move
+        })
+        MOVES = filteredMoves
+    }
+    console.log(MOVES)
+
     highlightMoves(MOVES)      //  Highlight the available squares.
 }    
     
@@ -429,7 +466,9 @@ function highlightMoves(moves) {
         BOARDSQUARES.forEach(square => {
             if (move.target === false) {
                 if (square.dataset.x == move.loc[0] && square.dataset.y == move.loc[1]) {
-                    square.classList.add('highlight')
+                    if (!ACTIVECHAR.jumpMoved) {
+                        square.classList.add('highlight')
+                    }
                 }
             }
             if (move.jumpCheck) {
