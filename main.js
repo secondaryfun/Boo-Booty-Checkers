@@ -189,10 +189,8 @@ function populateJumpTest() {
         // Add characters to rows:  makeChar receives charName and coordinate location (row,column).
         if(row % 2 === 1) {
             if (col % 2 === 1 && charName && ( row === 4 || row === 5 || row === 2 || row === 7)) placeChar( square, makeChar(charName) )       //  King Testing
-            // if (col === 5 && charName && ( row === 4 || row === 5 )) placeChar( square, makeChar(charName) )       //  Win Testing
         } else if (row % 2 === 0) {
             if (col % 2 === 0 && charName && ( row === 4 || row === 5 || row === 2 || row === 7)) placeChar( square, makeChar(charName) )  //  King Testing
-            // if (col === 4 && charName && ( row === 4 || row === 5)) placeChar( square, makeChar(charName) )   //  Win Testing
         }
     })
 }
@@ -209,7 +207,6 @@ function moveElement(e) {
     e.stopPropagation()
     let element = ACTIVE
     let char = CHARLIST[ACTIVE.dataset.charindex]
-    console.log(`5 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ moveElement.1 ${ACTIVECHAR.jumpMoved}`)
     
     // get the MOVE that matches e.target
     let loc = getLocFromSquare(e.target)
@@ -228,15 +225,12 @@ function moveElement(e) {
             }
         }  
     })
-    console.log(`5 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ moveElement.2 ${ACTIVECHAR.jumpMoved}`)
     if (char.jumpMoved === true) removeChar(move[0].target, PLAYERTURN)  //  Remove the jumped character.
     
     placeChar(e.target, element)  //  Place element into new div.
-    console.log(`5 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ moveElement.3 ${ACTIVECHAR.jumpMoved}`)
 
     if (char.jumpMoved === true) restartCheckMoves(element)
     else {
-        console.log(`5 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ moveElement.4 ${ACTIVECHAR.jumpMoved}`)
         deactivate(element)
 
         //  Set end of turn conditions.
@@ -261,22 +255,15 @@ function moveElement(e) {
 // FUNCTION: CHECK WIN - Description: If a win condition exists, ends the game.
 function checkWin() {
     let winner
-    console.log('winner!')
 
     if (P1DEADPILE.length >= CHARLIST.length / 2) winner = 'Player Two'
     if (P2DEADPILE.length >= CHARLIST.length / 2) winner = 'Player One'
 
     if (winner) {
-        console.log('winner!')
         MODAL.querySelector('h1').textContent = `${winner} Wins!`
         MODAL.querySelector('p').textContent = ''
         MODAL.classList.toggle('hidden')
     }
-
-    //  Still to add:  animate the movement.
-    //  ANIMATION
-    //  Get element data.
-    
 }
 
 //  FUNCTION: PLACE CHAR - Description: Place charElement on square - Receives target square and charElement. - Called by populate() Funcs && moveElement()
@@ -298,7 +285,6 @@ function placeChar(square, charElement) {
     let loc = getLocFromSquare(square)
     CHARLIST[charElement.dataset.charindex].loc = loc
 
-
     //Determine if king
     kingMe(charElement)
 }
@@ -308,7 +294,6 @@ function removeChar(char, player) {
     // Add taken char to dead pile
     if (player === 'biter') P1DEADPILE.push( CHARLIST[char.charindex] )
     else P2DEADPILE.push( CHARLIST[char.charindex] )
-    console.log(char)
     
     // Remove char from board
     let square = getSquareFromloc(char.loc)
@@ -320,33 +305,25 @@ function removeChar(char, player) {
 
 // FUNCTION: SET ACTIVE ATTRIBUTES - Descriptions: Set the following: dataset.active, animation: on.
 function activate(charElement) {
-    if (ACTIVECHAR) console.log(`1 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ activate.1 ${ACTIVECHAR.jumpMoved}`)
     if (ACTIVE) {
-        console.log(`Is charElement already active? - ${CHARLIST[charElement.dataset.charindex].charindex} === ${ACTIVECHAR.charindex}`)
         if (CHARLIST[charElement.dataset.charindex].charindex === ACTIVECHAR.charindex) return
         deactivate(ACTIVE)  //  Deactivate previous ACTIVE
         } 
     
-    console.log(CHARLIST[charElement.dataset.charindex])
     // Add active settings
     ACTIVE = charElement
     ACTIVE.dataset.active = true
     ACTIVECHAR = CHARLIST[charElement.dataset.charindex]
-    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-    console.log(`1 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ activate.2 ${ACTIVECHAR.jumpMoved}`)
     animate(ACTIVE, true)
 }
 
 //  FUNCTION: CLEAR ACTIVE SETTINGS
 function deactivate(charElement) {
-    console.log(`6 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ de-activate.1 ${ACTIVECHAR.jumpMoved}`)
     charElement.dataset.active = false
     
     animate(char.charElement, false)
     endHighlights()
     CHARLIST[charElement.dataset.charindex].jumpMoved = false
-    console.log(`6 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ de-activate.2 ${ACTIVECHAR.jumpMoved}`)
 }
 
 //  FUNCTION: RESET FOR CHECKMOVES
@@ -382,9 +359,7 @@ function kingMe(charElement) {
     if ( char.loc[1] === 8 && char.type === 'biter' ) char.king = true
     if ( char.loc[1] === 1 && char.type === 'grinder' ) char.king = true
     if (char.king === true) {
-        console.log(charElement)
         charElement.classList.add('king')
-        console.log('KING ME!')
     } 
 }
 
@@ -400,16 +375,13 @@ function showMoves(charElement, force=false) {
             } else if (CHARLIST[charElement.dataset.charindex].type === 'grinder') return
         }
         activate(charElement)   //  Set charElement to active
-        console.log(`2 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ showMoves.1 ${ACTIVECHAR.jumpMoved}`)
 
         getValidMoves(charElement)  //  highlight valid moves
-        console.log(`4 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ showMoves.2 ${ACTIVECHAR.jumpMoved}`)
 
         if (MOVES.length === 0) {
             deactivate(charElement)
             return false
         } 
-        console.log(`4 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ showMoves.3 ${ACTIVECHAR.jumpMoved}`)
 
         // EVENT LISTENER: GET PLAYER MOVE CHOICE - Description: Add event listener to highlighted squares.
         let openSquares = document.querySelectorAll('.highlight')
@@ -441,7 +413,6 @@ function getValidMoves(charElement) {
     // Pull data for charElement.
     char = CHARLIST[ charElement.dataset.charindex ]
     MOVES = []
-    console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.1 ${ACTIVECHAR.jumpMoved}`)
 
     // SubFunc = pushes valid moves to 'MOVES'
     const getMoves = (char, xDir=1, king = false) => {
@@ -462,7 +433,6 @@ function getValidMoves(charElement) {
 
         // Check for obstruction
         leftMove.target = checkSquare(leftMove)
-        // console.log(`target: ${leftMove.target} - type: ${leftMove.target.type} !== ${char.type}`)
         
         if (leftMove.target && leftMove.target.type !== char.type) {
             //look for jump space
@@ -475,29 +445,22 @@ function getValidMoves(charElement) {
             leftMove.jumpTarget = checkSquare(leftMove)
             if (leftMove.jumpTarget !== false) leftMove.jumpCheck = false
         }
-        console.log(MOVES)
         MOVES.push( leftMove )
     }
-    console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.2 ${ACTIVECHAR.jumpMoved}`)
-    console.log(`3.a char @ getValidMoves - ie, the point ${ACTIVECHAR.jumpMoved}`)
 
-    console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.3 ${ACTIVECHAR.jumpMoved}`)
     getMoves(char, 1)  //  Get right move
     getMoves(char, -1)  //  Get left move
     if (char.king) getMoves(char, 1, true)  //  Get right jump move
     if (char.king) getMoves(char, -1, true)  //  Get left jump move
     
-    console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.4 ${ACTIVECHAR.jumpMoved}`)
         
     //Validate moves based on char condition
-    console.log(MOVES)
     if (char.jumpMoved) {
         let filteredMoves = MOVES.filter( (move) => {
             if (move.jumpCheck === true) return move
         })
         MOVES = filteredMoves
     }
-    console.log(MOVES)
 
     highlightMoves(MOVES)      //  Highlight the available squares.
 }    
@@ -510,7 +473,6 @@ function checkSquare(move) {
     
     CHARLIST.forEach(char => {
         if (char.loc[0] === moveLoc[0] && char.loc[1] === moveLoc[1]) {
-            // console.log('Match!')
             target = char
         }
     })
@@ -569,110 +531,4 @@ function getLocFromSquare(square) {
     let row = parseInt(square.dataset.y)
     let col = parseInt(square.dataset.x) 
     return [col,row]
-}
-
-
-// ********************************** NOT IMPLEMENTED FUNCTIONS **********************************
-
-
-//  Add event listener to each square
-// BOARDSQUARES.forEach(square => {   
-//     square.addEventListener('click', e => {
-//         let div = document.createElement('div')
-//         div.classList.add(`${dupType}`,'animation','item')
-//         div.classList.add('biter','animation','item')
-//         div.addEventListener('mousedown', setDrag)
-//         div.addEventListener('touchstart', setDrag)
-//         div.addEventListener('click', e => {
-//             e.stopPropagation()
-//         })
-//         e.target.appendChild(div)
-//     })
-// })
-
-function setDrag(e) {
-    e.stopPropagation()
-    // console.log('mousedown')
-    animateScript(e.target)
-    console.log(dragItem)
-    dragItem = e.target
-}
-
-
-
-function drag() {
-
-    //  Mouse Drag Tutorial: https://www.kirupa.com/html5/drag.htm
-    
-    let dragItem = document.querySelector(".item");
-    let board = document.querySelector(".board");
-    
-    let active = false;
-    let currentX;
-    let currentY;
-    let initialX;
-    let initialY;
-    let xOffset = 0;
-    let yOffset = 0;
-    let dragEndTarget;
-    
-    board.addEventListener("touchstart", dragStart, false);
-    board.addEventListener("touchend", dragEnd, false);
-    board.addEventListener("touchmove", drag, false);
-    
-    board.addEventListener("mousedown", dragStart, false);
-    board.addEventListener("mouseup", dragEnd, false);
-    board.addEventListener("mousemove", drag, false);
-    
-    BOARDSQUARES.forEach(square => {
-        square.addEventListener('touchend', e => {
-            dragEndTarget = e.target.dataset.charindex;
-            console.log(`Ending in square: ${e.target.dataset.charindex}`)
-        })
-    })
-    
-    function dragStart(e) {
-        if (e.type === "touchstart") {
-            initialX = e.touches[0].clientX - xOffset;
-            initialY = e.touches[0].clientY - yOffset;
-        } else {
-            initialX = e.clientX - xOffset;
-            initialY = e.clientY - yOffset;
-        }
-        
-        if (e.target === dragItem) {
-            active = true;
-        }
-    }
-    
-function dragEnd(e) {
-    initialX = currentX;
-    initialY = currentY;
-    
-    active = false;
-}
-
-function drag(e) {
-    if (active) {
-        
-    e.preventDefault();
-    
-    if (e.type === "touchmove") {
-        currentX = e.touches[0].clientX - initialX;
-        currentY = e.touches[0].clientY - initialY;
-    } else {
-        currentX = e.clientX - initialX;
-        currentY = e.clientY - initialY;
-    }
-    
-    xOffset = currentX;
-    yOffset = currentY;
-    
-    setTranslate(currentX, currentY, dragItem);
-    }
-}
-
-function setTranslate(xPos, yPos, el) {
-    el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
-}
 }
