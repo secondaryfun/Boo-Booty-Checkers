@@ -10,85 +10,92 @@
     <link rel="stylesheet" href="css/checkers.css">
 </head>
 <body>
-    <div class="results hidden"></div>
-    <header>
-        <h1>Starfire's Boo-Booty Checkers</h1>
-        <nav class="controls">
-            <div class="controlBtn" id="resetBtn">RESET</div>
-            <section class="turn_box">
-                <div class="biter picker" id="player2" data-type="biter"></div> VS
-                <div class="grinder picker" id="player1" data-type="grinder"></div>
-            </section>
-            <div class="modal hidden" id="startBtn">START</div>
-            <div class="controlBtn" id="jumpBtn">TRAIN</div>
-        </nav>
-    </header>
-    <div class="board">
-     
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="1"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="2"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="3"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="4"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="5"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="6"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="7"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="8"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="9"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="10"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="11"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="12"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="13"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="14"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="15"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="16"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="17"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="18"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="19"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="20"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="21"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="22"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="23"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="24"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="25"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="26"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="27"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="28"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="29"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="30"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="31"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="32"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="33"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="34"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="35"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="36"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="37"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="38"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="39"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="40"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="41"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="42"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="43"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="44"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="45"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="46"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="47"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="48"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="49"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="50"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="51"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="52"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="53"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="54"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="55"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="56"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="57"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="58"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="59"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="60"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="61"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="62"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="63"></div>
-        <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="64"></div>
+    <div class="body-wrapper">
+        <div class="game-wrapper">
+            <header>
+                <h1>Starfire's Boo-Booty Checkers</h1>
+                <nav class="controls">
+                    <div class="controlBtn" id="resetBtn">START</div>
+                    <section class="turn_box">
+                        <div class="biter picker" id="player2" data-type="biter"></div> VS
+                        <div class="grinder picker" id="player1" data-type="grinder"></div>
+                    </section>
+                    <div class="controlBtn" id="jumpBtn">TRAIN</div>
+                    
+                    <div class="modal " id="startInput">
+                        <h1>Grinder Goes First</h1>
+                        <p class="instructions"></p>
+                        <div class="square"> <p class="grinder large"></p>  </div>
+                    </div>
+                </nav>
+            </header>
+            <div class="board">
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="1"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="2"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="3"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="4"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="5"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="6"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="7"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="8"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="9"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="10"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="11"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="12"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="13"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="14"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="15"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="16"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="17"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="18"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="19"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="20"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="21"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="22"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="23"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="24"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="25"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="26"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="27"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="28"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="29"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="30"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="31"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="32"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="33"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="34"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="35"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="36"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="37"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="38"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="39"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="40"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="41"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="42"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="43"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="44"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="45"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="46"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="47"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="48"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="49"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="50"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="51"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="52"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="53"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="54"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="55"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="56"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="57"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="58"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="59"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="60"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="61"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="62"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="63"></div>
+            <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="64"></div>
+            </div>
+        </div>
     </div>
 </body>
 <script src="main.js"></script>
