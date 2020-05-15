@@ -57,6 +57,8 @@ BOARDSQUARES.forEach(square => {
     }
 })
 
+//  FUNCTION:
+
 // ********************************** CONTROL BUTTONS **********************************
 
 // BUTTON: RESET BOARD
@@ -226,6 +228,7 @@ function moveElement(e) {
     
 }
 
+//  FUNCTION: REMOVE CHAR - Description: Removes char from the board and places char into player's dead pile.
 function removeChar(char, player) {
     // Add taken char to dead pile
     if (player === 'biter') P1DEADPILE.push( CHARLIST[char.charindex] )
@@ -307,7 +310,7 @@ function kingMe(charElement) {
 }
 
 // ********************************** GAME LOGIC **********************************
-
+//  FUNCTION: SHOW MOVES - Description: When char is clicked, showMoves runs and highlights characters available moves.
 function showMoves(charElement, force=false) {
 
     if (charElement.dataset.active === 'false' || force) {
@@ -335,19 +338,19 @@ function showMoves(charElement, force=false) {
     } 
 }
 
-// function passPlayer() {
-//     if (PLAYERTURN === 'grinder') {
-//         PLAYERTURN = 'biter'
-//         BOARD.classList.toggle('player2')
-//         animate(P2ICON)
-//     }
-//     else {
-//         PLAYERTURN = 'grinder'
-//         BOARD.classList.toggle('player1')
-//         animate(P1ICON)
-//     }
+function passPlayer() {
+    if (PLAYERTURN === 'grinder') {
+        PLAYERTURN = 'biter'
+        BOARD.classList.toggle('player2')
+        animate(P2ICON)
+    }
+    else {
+        PLAYERTURN = 'grinder'
+        BOARD.classList.toggle('player1')
+        animate(P1ICON)
+    }
 
-// }
+}
 
 //  FUNCTION: RETURN LIST OF VALID MOVES - Description: Returns an array of legal moves for charElement.
 function getValidMoves(charElement) {
@@ -357,40 +360,9 @@ function getValidMoves(charElement) {
     console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.1 ${ACTIVECHAR.jumpMoved}`)
 
     // SubFunc = pushes valid moves to 'MOVES'
-    const getRightMoves = (charData, king = false) => {        
+    const getMoves = (charData, xDir=1, king = false) => {
         let addRow
-        let addColR = 1
-        if (charData.type === 'biter' ) addRow = 1
-        else addRow = -1
-
-        // Set King Modifier
-        if (king) addRow = addRow * -1
-    
-        // DETERMINE RIGHT MOVES
-        let rightMove = new MoveOption()
-        let rX = charData.loc[0] + addColR
-        let rY = charData.loc[1] + addRow
-        if (rX > 8 || rX < 1 || rY > 8 || rY < 1) return
-        rightMove.loc = [ rX , rY ]
-        
-        // Check for obstruction
-        rightMove.target = checkSquare(rightMove)
-        // console.log(`target: ${rightMove.target} - type: ${rightMove.target.type} !== ${charData.type}`)
-        
-        if (rightMove.target && rightMove.target.type !== charData.type) {
-            //look for jump space
-            rightMove.jumpCheck = true
-            rightMove.jumpLoc = [rightMove.loc[0] + addColR, rightMove.loc[1] + addRow]        
-            rightMove.jumpTarget = checkSquare(rightMove)
-            if (rightMove.jumpTarget !== false) rightMove.jumpCheck = false
-        }
-        console.log(MOVES)
-
-        MOVES.push( rightMove )
-    }
-    const getLeftMoves = (charData, king = false) => {
-        let addRow
-        let addColL = -1
+        let addColL = xDir
         if (charData.type === 'biter') addRow = 1
         else addRow = -1
 
@@ -411,7 +383,11 @@ function getValidMoves(charElement) {
         if (leftMove.target && leftMove.target.type !== charData.type) {
             //look for jump space
             leftMove.jumpCheck = true
-            leftMove.jumpLoc = [leftMove.loc[0] + addColL, leftMove.loc[1] + addRow]       
+            rX = leftMove.loc[0] + addColL, 
+            rY = leftMove.loc[1] + addRow
+            if (rX > 8 || rX < 1 || rY > 8 || rY < 1) return
+
+            leftMove.jumpLoc = [ rX, rY]
             leftMove.jumpTarget = checkSquare(leftMove)
             if (leftMove.jumpTarget !== false) leftMove.jumpCheck = false
         }
@@ -421,14 +397,14 @@ function getValidMoves(charElement) {
     console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.2 ${ACTIVECHAR.jumpMoved}`)
     console.log(`3.a charData @ getValidMoves - ie, the point ${ACTIVECHAR.jumpMoved}`)
 
-    //  If last move was a jump, do not get single moves.
-    getLeftMoves(charData)
-    getRightMoves(charData)
     console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.3 ${ACTIVECHAR.jumpMoved}`)
-    if (charData.king) getLeftMoves(charData, true)
-    if (charData.king) getRightMoves(charData, true)
-    console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.4 ${ACTIVECHAR.jumpMoved}`)
+    getMoves(charData, 1)  //  Get right move
+    getMoves(charData, -1)  //  Get left move
+    if (charData.king) getMoves(charData, 1, true)  //  Get right jump move
+    if (charData.king) getLeftMoves(charData, -1, true)  //  Get left jump move
     
+    console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.4 ${ACTIVECHAR.jumpMoved}`)
+        
     //Validate moves based on char condition
     console.log(MOVES)
     if (charData.jumpMoved) {
