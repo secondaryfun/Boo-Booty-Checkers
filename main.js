@@ -11,11 +11,14 @@ let ACTIVE //   The active charElement  -  Needed for moveElement() due to embed
 let ACTIVECHAR  //  The active char.  Used only for Console Logging.
 let MOVES = []
 let ALTERNATEPLAY = false
-const resetBtn = document.querySelector('#resetBtn')
-const startBtn = document.querySelector('#startBtn')
+const RESETBTN = document.querySelector('#resetBtn')
+const STARTBTN = document.querySelector('#startBtn')
 const P1ICON = document.querySelector('#player1')
 const P2ICON = document.querySelector('#player2')
 const BOARD = document.querySelector('.board')
+const MODAL = document.querySelector('.modal')
+const INSTRUCTIONS = document.querySelector('.instructions')
+const JUMPBTN = document.querySelector('#jumpBtn')
 
 
 //  CLASS DECLARATION - CHARACTER DATA
@@ -96,7 +99,7 @@ function clearBoard() {
 // ********************************** CONTROL BUTTONS **********************************
 
 // BUTTON: START CHECKERS
-resetBtn.addEventListener('click',e => {
+RESETBTN.addEventListener('click',e => {
 
     clearBoard()
     populateBoard()
@@ -105,8 +108,7 @@ resetBtn.addEventListener('click',e => {
 })
 
 // BUTTON: RESET BOARD - Set to jump side game
-const jumpBtn = document.querySelector('#jumpBtn')
-jumpBtn.addEventListener('click', e => {
+JUMPBTN.addEventListener('click', e => {
     
     clearBoard()
     populateJumpTest()
@@ -134,8 +136,7 @@ function populateBoard() {
 }
 
 // FUNCTION: LOAD INSTRUCTIONS - CHECKERS 
-const MODAL = document.querySelector('.modal')
-const INSTRUCTIONS = document.querySelector('.instructions')
+
 function loadInstructions() {
     MODAL.classList.toggle('hidden')
 
@@ -195,10 +196,155 @@ function populateJumpTest() {
     })
 }
 
+// ********************************** GAME LOGIC **********************************
+//  FUNCTION: SHOW MOVES - Description: When char is clicked, showMoves runs and highlights characters available moves.
+function showMoves(charElement, force=false) {
+    char = CHARLIST[ charElement.dataset.charindex ]
 
+    if (charElement.dataset.active === 'false' || force) {
+        if (ALTERNATEPLAY === true) {
+            if (PLAYERTURN % 2 === 1) {
+                if(CHARLIST[charElement.dataset.charindex].type === 'biter') return
+            } else if (CHARLIST[charElement.dataset.charindex].type === 'grinder') return
+        }
+        activate(charElement)   //  Set charElement to active
 
+        getValidMoves(charElement)  //  highlight valid moves
 
+        if (MOVES.length === 0) {
+            deactivate(charElement)
+            return false
+        } 
 
+        // EVENT LISTENER: GET PLAYER MOVE CHOICE - Description: Add event listener to highlighted squares.
+        let openSquares = document.querySelectorAll('.highlight')
+        openSquares.forEach(square => {
+            square.addEventListener('click', moveElement)
+        })
+
+    } else {
+        deactivate(charElement)  // Inactivate the charElement
+    } 
+}
+
+//  FUNCTION: PASS PLAYER
+function passPlayer() {
+    if (PLAYERTURN === 'grinder') {
+        PLAYERTURN = 'biter'
+        BOARD.classList.toggle('player2')
+        animate(P2ICON)
+    }
+    else {
+        PLAYERTURN = 'grinder'
+        BOARD.classList.toggle('player1')
+        animate(P1ICON)
+    }
+
+}
+
+//  FUNCTION: RETURN LIST OF VALID MOVES - Description: Returns an array of legal moves for charElement.
+function getValidMoves(charElement) {
+    // Pull data for charElement.
+    char = CHARLIST[ charElement.dataset.charindex ]
+    MOVES = []
+
+    // SubFunc = pushes valid moves to 'MOVES'
+    const getMoves = (char, xDir=1, king = false) => {
+        let addRow
+        let addColL = xDir
+        if (char.type === 'biter') addRow = 1
+        else addRow = -1
+
+        // Set King Modifier
+        if (king) addRow = addRow * -1
+
+        // DETERMINE LEFT MOVES
+        let leftMove = new MoveOption()
+        let rX = char.loc[0] + addColL
+        let rY = char.loc[1] + addRow
+        if (rX > 8 || rX < 1 || rY > 8 || rY < 1) return
+        leftMove.loc = [ rX , rY ]
+
+        // Check for obstruction
+        leftMove.target = checkSquare(leftMove)
+        
+        if (leftMove.target && leftMove.target.type !== char.type) {
+            //look for jump space
+            leftMove.jumpCheck = true
+            rX = leftMove.loc[0] + addColL, 
+            rY = leftMove.loc[1] + addRow
+            if (rX > 8 || rX < 1 || rY > 8 || rY < 1) return
+
+            leftMove.jumpLoc = [ rX, rY]
+            leftMove.jumpTarget = checkSquare(leftMove)
+            if (leftMove.jumpTarget !== false) leftMove.jumpCheck = false
+        }
+        MOVES.push( leftMove )
+    }
+
+    getMoves(char, 1)  //  Get right move
+    getMoves(char, -1)  //  Get left move
+    if (char.king) getMoves(char, 1, true)  //  Get right jump move
+    if (char.king) getMoves(char, -1, true)  //  Get left jump move
+    
+        
+    //Validate moves based on char condition
+    if (char.jumpMoved) {
+        let filteredMoves = MOVES.filter( (move) => {
+            if (move.jumpCheck === true) return move
+        })
+        MOVES = filteredMoves
+    }
+
+    highlightMoves(MOVES)      //  Highlight the available squares.
+}    
+    
+//  FUNCTION: CHECK IF EMPTY SQUARE - Description: Check square and return charElement index if square contains a charElement
+function checkSquare(move) {
+    let target = null
+    let moveLoc = move.loc
+    if (move.jumpCheck) moveLoc = move.jumpLoc
+    
+    CHARLIST.forEach(char => {
+        if (char.loc[0] === moveLoc[0] && char.loc[1] === moveLoc[1]) {
+            target = char
+        }
+    })
+
+    if (target) {return target}
+    else {return false}
+}
+
+//  FUNCTION: ADD HIGHLIGHTS
+function highlightMoves(moves) {
+    moves.forEach(move => {
+        //get square
+        BOARDSQUARES.forEach(square => {
+            if (move.target === false) {
+                if (square.dataset.x == move.loc[0] && square.dataset.y == move.loc[1]) {
+                    if (!ACTIVECHAR.jumpMoved) {
+                        square.classList.add('highlight')
+                    }
+                }
+            }
+            if (move.jumpCheck) {
+                if (square.dataset.x == move.jumpLoc[0] && square.dataset.y == move.jumpLoc[1]) {
+                    square.classList.add('highlight')
+                }
+            }
+        })
+    })
+}
+//  FUNCTION: END HIGHLIGHTS
+function endHighlights() {
+    BOARDSQUARES.forEach(square => {
+        let squareClasses = Array.from(square.classList)
+        if (squareClasses.includes('highlight')) {
+            square.classList.remove('highlight')
+            square.removeEventListener('click', moveElement)
+        }
+    })
+}
 
 // ********************************** CHAR ELEMENT MOVEMENT **********************************
 
@@ -336,7 +482,6 @@ function restartCheckMoves(charElement) {
 
 //  FUNCTION: ANIMATE - Descriptions: starts the animation for charElement if 'start' is true.
 function animate(charElement, start) {
-    // Sprint Animation Tutorial: https://medium.com/dailyjs/how-to-build-a-simple-sprite-animation-in-javascript-b764644244aa
     
     //  Start animation
     if (start === true) {
@@ -363,155 +508,7 @@ function kingMe(charElement) {
     } 
 }
 
-// ********************************** GAME LOGIC **********************************
-//  FUNCTION: SHOW MOVES - Description: When char is clicked, showMoves runs and highlights characters available moves.
-function showMoves(charElement, force=false) {
-    char = CHARLIST[ charElement.dataset.charindex ]
-
-    if (charElement.dataset.active === 'false' || force) {
-        if (ALTERNATEPLAY === true) {
-            if (PLAYERTURN % 2 === 1) {
-                if(CHARLIST[charElement.dataset.charindex].type === 'biter') return
-            } else if (CHARLIST[charElement.dataset.charindex].type === 'grinder') return
-        }
-        activate(charElement)   //  Set charElement to active
-
-        getValidMoves(charElement)  //  highlight valid moves
-
-        if (MOVES.length === 0) {
-            deactivate(charElement)
-            return false
-        } 
-
-        // EVENT LISTENER: GET PLAYER MOVE CHOICE - Description: Add event listener to highlighted squares.
-        let openSquares = document.querySelectorAll('.highlight')
-        openSquares.forEach(square => {
-            square.addEventListener('click', moveElement)
-        })
-
-    } else {
-        deactivate(charElement)  // Inactivate the charElement
-    } 
-}
-
-function passPlayer() {
-    if (PLAYERTURN === 'grinder') {
-        PLAYERTURN = 'biter'
-        BOARD.classList.toggle('player2')
-        animate(P2ICON)
-    }
-    else {
-        PLAYERTURN = 'grinder'
-        BOARD.classList.toggle('player1')
-        animate(P1ICON)
-    }
-
-}
-
-//  FUNCTION: RETURN LIST OF VALID MOVES - Description: Returns an array of legal moves for charElement.
-function getValidMoves(charElement) {
-    // Pull data for charElement.
-    char = CHARLIST[ charElement.dataset.charindex ]
-    MOVES = []
-
-    // SubFunc = pushes valid moves to 'MOVES'
-    const getMoves = (char, xDir=1, king = false) => {
-        let addRow
-        let addColL = xDir
-        if (char.type === 'biter') addRow = 1
-        else addRow = -1
-
-        // Set King Modifier
-        if (king) addRow = addRow * -1
-
-        // DETERMINE LEFT MOVES
-        let leftMove = new MoveOption()
-        let rX = char.loc[0] + addColL
-        let rY = char.loc[1] + addRow
-        if (rX > 8 || rX < 1 || rY > 8 || rY < 1) return
-        leftMove.loc = [ rX , rY ]
-
-        // Check for obstruction
-        leftMove.target = checkSquare(leftMove)
-        
-        if (leftMove.target && leftMove.target.type !== char.type) {
-            //look for jump space
-            leftMove.jumpCheck = true
-            rX = leftMove.loc[0] + addColL, 
-            rY = leftMove.loc[1] + addRow
-            if (rX > 8 || rX < 1 || rY > 8 || rY < 1) return
-
-            leftMove.jumpLoc = [ rX, rY]
-            leftMove.jumpTarget = checkSquare(leftMove)
-            if (leftMove.jumpTarget !== false) leftMove.jumpCheck = false
-        }
-        MOVES.push( leftMove )
-    }
-
-    getMoves(char, 1)  //  Get right move
-    getMoves(char, -1)  //  Get left move
-    if (char.king) getMoves(char, 1, true)  //  Get right jump move
-    if (char.king) getMoves(char, -1, true)  //  Get left jump move
-    
-        
-    //Validate moves based on char condition
-    if (char.jumpMoved) {
-        let filteredMoves = MOVES.filter( (move) => {
-            if (move.jumpCheck === true) return move
-        })
-        MOVES = filteredMoves
-    }
-
-    highlightMoves(MOVES)      //  Highlight the available squares.
-}    
-    
-//  FUNCTION: CHECK IF EMPTY SQUARE - Description: Check square and return charElement index if square contains a charElement
-function checkSquare(move) {
-    let target = null
-    let moveLoc = move.loc
-    if (move.jumpCheck) moveLoc = move.jumpLoc
-    
-    CHARLIST.forEach(char => {
-        if (char.loc[0] === moveLoc[0] && char.loc[1] === moveLoc[1]) {
-            target = char
-        }
-    })
-
-    if (target) {return target}
-    else {return false}
-}
-
-//  FUNCTION: ADD HIGHLIGHTS
-function highlightMoves(moves) {
-    moves.forEach(move => {
-        //get square
-        BOARDSQUARES.forEach(square => {
-            if (move.target === false) {
-                if (square.dataset.x == move.loc[0] && square.dataset.y == move.loc[1]) {
-                    if (!ACTIVECHAR.jumpMoved) {
-                        square.classList.add('highlight')
-                    }
-                }
-            }
-            if (move.jumpCheck) {
-                if (square.dataset.x == move.jumpLoc[0] && square.dataset.y == move.jumpLoc[1]) {
-                    square.classList.add('highlight')
-                }
-            }
-        })
-    })
-}
-//  FUNCTION: END HIGHLIGHTS
-function endHighlights() {
-    BOARDSQUARES.forEach(square => {
-        let squareClasses = Array.from(square.classList)
-        if (squareClasses.includes('highlight')) {
-            square.classList.remove('highlight')
-            square.removeEventListener('click', moveElement)
-        }
-    })
-}
-
+// ********************************** UTILITY FUNCTIONS **********************************
 
 
 //  FUNCTION: GET SQUARE FROM LOC - Description: Returns the square object at location [x,y]
