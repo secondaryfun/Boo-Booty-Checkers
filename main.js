@@ -190,7 +190,7 @@ function populateJumpTest() {
         
         // Add characters to rows:  makeChar receives charName and coordinate location (row,column).
         if(row % 2 === 1) {
-            if (col === 5 && charName && ( row === 4 || row === 5 || row === 2 || row === 7)) placeChar( square, makeChar(charName) )       //  King Testing
+            if (col % 2 === 1 && charName && ( row === 4 || row === 5 || row === 2 || row === 7)) placeChar( square, makeChar(charName) )       //  King Testing
             // if (col === 5 && charName && ( row === 4 || row === 5 )) placeChar( square, makeChar(charName) )       //  Win Testing
         } else if (row % 2 === 0) {
             if (col % 2 === 0 && charName && ( row === 4 || row === 5 || row === 2 || row === 7)) placeChar( square, makeChar(charName) )  //  King Testing
