@@ -10,23 +10,17 @@
     <link rel="stylesheet" href="css/checkers.css">
 </head>
 <body>
-    <div class="body-wrapper">
-
+    <div class="results hidden"></div>
     <header>
         <h1>Starfire's Boo-Booty Checkers</h1>
         <nav class="controls">
-            <div class="controlBtn" id="resetBtn">START</div>
+            <div class="controlBtn" id="resetBtn">RESET</div>
             <section class="turn_box">
                 <div class="biter picker" id="player2" data-type="biter"></div> VS
                 <div class="grinder picker" id="player1" data-type="grinder"></div>
             </section>
+            <div class="modal hidden" id="startBtn">START</div>
             <div class="controlBtn" id="jumpBtn">TRAIN</div>
-
-            <div class="modal " id="startInput">
-                <h1>Grinder Goes First</h1>
-                <p class="instructions"></p>
-                <div class="square"> <p class="grinder large"></p>  </div>
-            </div>
         </nav>
     </header>
     <div class="board">
@@ -95,7 +89,6 @@
         <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="62"></div>
         <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="63"></div>
         <div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="64"></div>
-    </div>
     </div>
 </body>
 <script src="main.js"></script>
