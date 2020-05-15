@@ -57,21 +57,20 @@ BOARDSQUARES.forEach(square => {
     }
 })
 
-//  FUNCTION:
-
+//  FUNCTION: CLEAR BOARD - Description: Removes all chars from the board and memory.
+function clearBoard() {
+    CHARLIST = []
+    BOARDSQUARES.forEach(square => {
+        square.dataset.char = ""
+        square.dataset.active = false
+        square.innerHTML = ""
+    })
+}
 // ********************************** CONTROL BUTTONS **********************************
 
-// BUTTON: RESET BOARD
+// BUTTON: START CHECKERS
 resetBtn.addEventListener('click',e => {
-    //Start Character fall animation
-    let clearBoard = () => {
-        CHARLIST = []
-        BOARDSQUARES.forEach(square => {
-            square.dataset.char = ""
-            square.dataset.active = false
-            square.innerHTML = ""
-        })
-    }
+
     clearBoard()
     populateBoard()
     passPlayer()
@@ -81,19 +80,14 @@ resetBtn.addEventListener('click',e => {
 // BUTTON: RESET BOARD - Set to jump side game
 const jumpBtn = document.querySelector('#jumpBtn')
 jumpBtn.addEventListener('click', e => {
-    let clearBoard = () => {
-        CHARLIST = []
-        BOARDSQUARES.forEach(square => {
-            square.dataset.char = ""
-            square.dataset.active = false
-            square.innerHTML = ""
-        })
-    }
+    
     clearBoard()
     populateJumpTest()
 })
 
-// ********************************** CHAR ELEMENTS CREATING **********************************
+// ********************************** GAME MODE: CHECKERS **********************************
+// choosePlayer
+
 
 //  FUNCTION: POPULATE BOARD
 function populateBoard() {
@@ -113,6 +107,8 @@ function populateBoard() {
         }
     })
 }
+
+// ********************************** GAME MODE: TRAINING **********************************
 
 //  FUNCTION: POPULATE BOARD FOR TRAINING
 function populateJumpTest() {
