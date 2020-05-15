@@ -401,7 +401,7 @@ function getValidMoves(charElement) {
     getMoves(charData, 1)  //  Get right move
     getMoves(charData, -1)  //  Get left move
     if (charData.king) getMoves(charData, 1, true)  //  Get right jump move
-    if (charData.king) getLeftMoves(charData, -1, true)  //  Get left jump move
+    if (charData.king) getMoves(charData, -1, true)  //  Get left jump move
     
     console.log(`3 - MOVES.Length = ${MOVES.length} ACTIVECHAR @ getValidMoves.4 ${ACTIVECHAR.jumpMoved}`)
         
