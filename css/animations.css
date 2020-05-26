@@ -2,8 +2,7 @@
     height: 78px;
     width: 78px;
     /* background-size: 75px; */
-    background: url("../images/bootyBiter-animated-r.png") 0px
-        0px;
+    background: url("../images/bootyBiter-animated-r.png") 0px 0px;
     background-size: cover;
 }
 
@@ -11,11 +10,56 @@
     height: 80px;
     width: 80px;
     background-size: 80px;
-    background: url("../images/BootyGrinder-animated-l.png") 0px
-        0px;
+    background: url("../images/BootyGrinder-animated-l.png") 0px 0px;
     background-size: cover;
 }
 
 .king {
     background-color: rgba(217, 0, 255, 0.767);
+}
+
+.animate {
+    animation: activeChar 0.5s infinite linear;
+}
+
+@keyframes activeChar {
+    0% {
+        transform: rotate(0deg);
+    }
+    10% {
+        transform: rotate(1deg);
+    }
+    20% {
+        transform: rotate(2deg);
+    }
+    30% {
+        transform: rotate(4deg);
+    }
+    40% {
+        transform: rotate(2deg);
+    }
+    60% {
+        transform: rotate(-1deg);
+    }
+    80% {
+        transform: rotate(-3deg);
+    }
+    950% {
+        transform: rotate(-1deg);
+    }
+}
+
+.loading-animation {
+    animation: rotation 3s infinite linear;
+    display: inline-block;
+    margin: 1.5rem;
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
+    }
 }

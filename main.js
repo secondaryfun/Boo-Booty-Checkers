@@ -3,25 +3,28 @@
 let NUMROWS = 8
 let NUMCOLUMNS = 8
 let CHARLIST = []
-let PLAYERTURN = 0
+let PLAYERTURN = 0 //  incrementer. if odd, turn is player1.
 const PLAYER1 = "grinder"
 const PLAYER2 = "biter"
 let P1DEADPILE = []
 let P2DEADPILE = []
-let ACTIVE //   The active charElement  -  Needed for moveElement() due to embedded event listener in showMoves()
+let ACTIVEELEMENT //   The active charElement  -  Needed for moveElement() due to embedded event listener in showMoves()
 let ACTIVECHAR //  The active char.  Used only for Console Logging.
 let MOVES = []
 let ALTERNATEPLAY = false
 let ALLOWACTIVATE = false
 
+let INSTRUCTIONS =
+    "Click on a treasure chest to see available moves. Click again to deactivate chest. <br>Click on the highlighted square to select a move. <br>After taking a piece, additional jump moves will show. <br>Click on the active piece to end turn or a highlighted square to move again."
+
 const BOARD = document.querySelector(".board")
-const BOARDSQUARES = Array.from(document.querySelectorAll(".square"))
+let BOARDSQUARES = []
 const RESETBTN = document.querySelector("#resetBtn")
 const STARTBTN = document.querySelector("#startBtn")
 const P1ICON = document.querySelector("#player1")
 const P2ICON = document.querySelector("#player2")
 const MODAL = document.querySelector(".modal")
-const INSTRUCTIONS = document.querySelector(".instructions")
+const MESSAGEBOX = document.querySelector(".instructions")
 const JUMPBTN = document.querySelector("#jumpBtn")
 
 //  Build Board
@@ -52,7 +55,7 @@ function MoveOption(coor) {
 function buildBoard() {
     // Add divs to BOARD
     // /<div class="square" data-char="" data-x="" data-y="" data-active="false" data-boardindex="64"></div>
-    for (let i = 1; i <= NUMROWS; i++) {
+    for (let i = 1; i <= NUMROWS * NUMCOLUMNS; i++) {
         let newElement = document.createElement("div")
         newElement.classList.add("square")
         newElement.setAttribute("data-char", "")
@@ -62,7 +65,7 @@ function buildBoard() {
         newElement.setAttribute("data-boardindex", i)
         BOARD.appendChild(newElement)
     }
-
+    BOARDSQUARES = Array.from(document.querySelectorAll(".square"))
     BOARDSQUARES.forEach(square => {
         let boardindex = parseInt(square.dataset.boardindex)
 
@@ -102,7 +105,7 @@ function makeChar(type) {
     //  SELECT ELEMENT EVENT LISTENER- Description: Set "On-click" event listeners
     charElement.addEventListener("click", e => {
         const charElement = e.target
-        ALLOWACTIVATE ? showMoves(charElement) : false
+        ALLOWACTIVATE ? showMoves(charElement) : showMoves(ACTIVEELEMENT)
     })
 
     //  Returns the DOM element.
@@ -114,7 +117,7 @@ function clearBoard() {
     CHARLIST = []
     P1DEADPILE = []
     P2DEADPILE = []
-    ACTIVE = null
+    ACTIVEELEMENT = null
     ACTIVECHAR = null
     ALLOWACTIVATE = false
     MOVES = []
@@ -131,14 +134,14 @@ function clearBoard() {
 RESETBTN.addEventListener("click", e => {
     clearBoard()
     populateBoard()
-    loadInstructions()
+    loadMessage(INSTRUCTIONS)
 })
 
 // BUTTON: RESET BOARD - Set to jump side game
 JUMPBTN.addEventListener("click", e => {
     clearBoard()
     populateJumpTest()
-    loadInstructions()
+    loadMessage(INSTRUCTIONS)
 })
 
 // ********************************** GAME MODE: CHECKERS **********************************
@@ -160,35 +163,36 @@ function populateBoard() {
             if (col % 2 === 0 && charName) placeChar(square, makeChar(charName))
         }
     })
+    ALTERNATEPLAY = true
 }
 
 // FUNCTION: LOAD INSTRUCTIONS - CHECKERS
 
-function loadInstructions() {
+function loadMessage(message) {
     MODAL.classList.toggle("hidden")
 
-    INSTRUCTIONS.textContent = `
-    The Grinders go first. Click a piece to show possible moves. Click a highlighted square to move the active piece to that square. Game ends when only one player's pieces are left on the board.
-    `
+    MESSAGEBOX.textContent = message
+    MODAL.querySelector("h1").textContent = `${PLAYER1.toUpperCase()} GOES FIRST`
+
     CHARLIST.forEach(char => {
         if (char.type === PLAYER1) animate(char.charElement, true)
     })
 
-    BOARD.addEventListener("click", closeInstructions)
-    MODAL.addEventListener("click", closeInstructions)
+    BOARD.addEventListener("click", closeModal)
+    MODAL.addEventListener("click", closeModal)
 }
 
 //  FUNCTION: CLOSE INSTRUCTIONS
-function closeInstructions(e) {
+function closeModal(e) {
     MODAL.classList.toggle("hidden")
     CHARLIST.forEach(char => {
         if (char.type === PLAYER1) animate(char.charElement, false)
     })
 
-    MODAL.removeEventListener("click", closeInstructions)
-    BOARD.removeEventListener("click", closeInstructions)
+    MODAL.removeEventListener("click", closeModal)
+    BOARD.removeEventListener("click", closeModal)
 
-    startAltPlay()
+    passPlayer()
 }
 
 function getCharfromSquare(square) {
@@ -218,21 +222,13 @@ function populateJumpTest() {
 
         // Add characters to rows:  makeChar receives charName and coordinate location (row,column).
         if (row % 2 === 1) {
-            if (
-                col % 2 === 1 &&
-                charName &&
-                (row === 4 || row === 5 || row === 2 || row === 7)
-            )
-                placeChar(square, makeChar(charName)) //  King Testing
+            if (col % 2 === 1 && charName && (row === 4 || row === 5 || row === 2 || row === 7)) placeChar(square, makeChar(charName)) //  King Testing
         } else if (row % 2 === 0) {
-            if (
-                col % 2 === 0 &&
-                charName &&
-                (row === 4 || row === 5 || row === 2 || row === 7)
-            )
-                placeChar(square, makeChar(charName)) //  King Testing
+            if (col % 2 === 0 && charName && (row === 4 || row === 5 || row === 2 || row === 7)) placeChar(square, makeChar(charName)) //  King Testing
         }
     })
+
+    ALTERNATEPLAY = true
 }
 
 // ********************************** GAME LOGIC **********************************
@@ -240,21 +236,22 @@ function populateJumpTest() {
 function showMoves(charElement, force = false) {
     //load char data
     char = CHARLIST[charElement.dataset.charindex]
+    jumpMoved = CHARLIST.find(char => char.jumpMoved)
 
-    if (charElement.dataset.active === "false" || force) {
+    if ((charElement.dataset.active === "false" && !jumpMoved) || (force && char.jumpMoved)) {
         if (ALTERNATEPLAY === true) {
             if (PLAYERTURN % 2 === 1 || PLAYERTURN === 0) {
-                if (CHARLIST[charElement.dataset.charindex].type === PLAYER2)
-                    return
-            } else if (CHARLIST[charElement.dataset.charindex].type === PLAYER1)
-                return
+                if (CHARLIST[charElement.dataset.charindex].type === PLAYER2) return
+            } else if (CHARLIST[charElement.dataset.charindex].type === PLAYER1) return
         }
+
         activate(charElement) //  Set charElement to active
 
         getValidMoves(charElement) //  highlight valid moves
 
         if (MOVES.length === 0) {
             deactivate(charElement)
+            passPlayer()
             return false
         }
 
@@ -264,22 +261,27 @@ function showMoves(charElement, force = false) {
             square.addEventListener("click", moveElement)
         })
     } else {
+        if (jumpMoved) passPlayer()
         deactivate(charElement) // Inactivate the charElement
     }
 }
 
 //  FUNCTION: PASS PLAYER
 function passPlayer() {
-    if (PLAYERTURN === PLAYER1) {
-        PLAYERTURN = PLAYER2
-        BOARD.classList.toggle("player2")
-        animate(P2ICON, true)
-        animate(P1ICON, false)
+    ALLOWACTIVATE = true
+    if (PLAYERTURN === 0) {
+        P1ICON.classList.add("animate")
+        PLAYERTURN++
+        return
+    }
+    if (PLAYERTURN % 2 === 1) {
+        PLAYERTURN++
+        P2ICON.classList.add("animate")
+        P1ICON.classList.remove("animate")
     } else {
-        PLAYERTURN = PLAYER1
-        BOARD.classList.toggle("player1")
-        animate(P1ICON, true)
-        animate(P2ICON, false)
+        PLAYERTURN++
+        P1ICON.classList.add("animate")
+        P2ICON.classList.remove("animate")
     }
 }
 
@@ -363,20 +365,14 @@ function highlightMoves(moves) {
         //get square
         BOARDSQUARES.forEach(square => {
             if (move.target === false) {
-                if (
-                    square.dataset.x == move.loc[0] &&
-                    square.dataset.y == move.loc[1]
-                ) {
+                if (square.dataset.x == move.loc[0] && square.dataset.y == move.loc[1]) {
                     if (!ACTIVECHAR.jumpMoved) {
                         square.classList.add("highlight")
                     }
                 }
             }
             if (move.jumpCheck) {
-                if (
-                    square.dataset.x == move.jumpLoc[0] &&
-                    square.dataset.y == move.jumpLoc[1]
-                ) {
+                if (square.dataset.x == move.jumpLoc[0] && square.dataset.y == move.jumpLoc[1]) {
                     square.classList.add("highlight")
                 }
             }
@@ -399,8 +395,9 @@ function endHighlights() {
 //  FUNCTION: MOVE ELEMENT - Description: Move charElement to event.target location. Receives event with event.target = target square.
 function moveElement(e) {
     e.stopPropagation()
-    let element = ACTIVE
-    let char = CHARLIST[ACTIVE.dataset.charindex]
+    let element = ACTIVEELEMENT
+    ALLOWACTIVATE = false
+    let char = CHARLIST[ACTIVEELEMENT.dataset.charindex]
 
     // get the MOVE that matches e.target
     let loc = getLocFromSquare(e.target)
@@ -428,20 +425,12 @@ function moveElement(e) {
 
         //  Set end of turn conditions.
         if (ALTERNATEPLAY) {
-            PLAYERTURN++
-
-            P1ICON.classList.toggle("king")
-            P2ICON.classList.toggle("king")
-
-            //  Turn off player guide after 2 turns
-            if (PLAYERTURN > 2) {
-                if (PLAYERTURN % 2 === 1)
-                    CHARLIST.forEach(char => {
-                        animate(char.charElement, false)
-                    })
-            }
-
             checkWin() //  Check for win
+            passPlayer()
+            // PLAYERTURN++
+
+            // P1ICON.classList.toggle("king")
+            // P2ICON.classList.toggle("king")
         }
     }
 }
@@ -454,8 +443,10 @@ function checkWin() {
 
     if (winner) {
         MODAL.querySelector("h1").textContent = `${winner} Wins!`
-        MODAL.querySelector("p").textContent = ""
+        MESSAGEBOX.textContent = ""
         MODAL.classList.toggle("hidden")
+        BOARD.addEventListener("click", closeModal)
+        MODAL.addEventListener("click", closeModal)
     }
 }
 
@@ -466,10 +457,7 @@ function placeChar(square, charElement) {
         BOARDSQUARES.forEach(square => {
             let row = parseInt(square.dataset.y)
             let col = parseInt(square.dataset.x)
-            if (
-                col === CHARLIST[charElement.dataset.charindex].loc[0] &&
-                row === CHARLIST[charElement.dataset.charindex].loc[1]
-            )
+            if (col === CHARLIST[charElement.dataset.charindex].loc[0] && row === CHARLIST[charElement.dataset.charindex].loc[1])
                 square.dataset.char = ""
         })
     }
@@ -487,10 +475,10 @@ function placeChar(square, charElement) {
 }
 
 //  FUNCTION: REMOVE CHAR - Description: Removes char from the board and places char into player's dead pile.
-function removeChar(char, player) {
+function removeChar(char) {
     // Add taken char to dead pile
-    if (player === "biter") P1DEADPILE.push(CHARLIST[char.charindex])
-    else P2DEADPILE.push(CHARLIST[char.charindex])
+    if (PLAYERTURN % 2 === 1) P2DEADPILE.push(CHARLIST[char.charindex])
+    else P1DEADPILE.push(CHARLIST[char.charindex])
 
     // Remove char from board
     let square = getSquareFromloc(char.loc)
@@ -500,25 +488,21 @@ function removeChar(char, player) {
 }
 // ********************************** CHAR ELEMENT GAME STATES **********************************
 
-// FUNCTION: SET ACTIVE ATTRIBUTES - Descriptions: Set the following: dataset.active, animation: on.
+// FUNCTION: SET ACTIVEELEMENT ATTRIBUTES - Descriptions: Set the following: dataset.active, animation: on.
 function activate(charElement) {
-    if (ACTIVE) {
-        if (
-            CHARLIST[charElement.dataset.charindex].charindex ===
-            ACTIVECHAR.charindex
-        )
-            return
-        deactivate(ACTIVE) //  Deactivate previous ACTIVE
+    if (ACTIVEELEMENT) {
+        if (CHARLIST[charElement.dataset.charindex].charindex === ACTIVECHAR.charindex) return
+        deactivate(ACTIVEELEMENT) //  Deactivate previous ACTIVEELEMENT
     }
 
     // Add active settings
-    ACTIVE = charElement
-    ACTIVE.dataset.active = true
+    ACTIVEELEMENT = charElement
+    ACTIVEELEMENT.dataset.active = true
     ACTIVECHAR = CHARLIST[charElement.dataset.charindex]
-    animate(ACTIVE, true)
+    animate(ACTIVEELEMENT, true)
 }
 
-//  FUNCTION: CLEAR ACTIVE SETTINGS
+//  FUNCTION: CLEAR ACTIVEELEMENT SETTINGS
 function deactivate(charElement) {
     charElement.dataset.active = false
 
