@@ -1,21 +1,34 @@
 .biter {
     height: 78px;
     width: 78px;
-    /* background-size: 75px; */
-    background: url("../images/bootyBiter-animated-r.png") 0px 0px;
-    background-size: cover;
+    background: url("../images/biter.png");
+    background-size: contain;
 }
 
 .grinder {
     height: 80px;
     width: 80px;
-    background-size: 80px;
-    background: url("../images/BootyGrinder-animated-l.png") 0px 0px;
-    background-size: cover;
+    background: url("../images/grinder.png");
+    background-size: contain;
 }
 
 .king {
     background-color: rgba(217, 0, 255, 0.767);
+}
+
+.grinder-king {
+    background: url("../images/bouncing-grinder.png");
+    background-size: contain;
+}
+
+.biter-king {
+    background: url("../images/bouncing-booty.png");
+    background-size: contain;
+}
+
+.grinder-king. .biter-king {
+    position: relative;
+    animation: kingbounce 0.5s infinite linear;
 }
 
 .animate {
@@ -44,22 +57,23 @@
     80% {
         transform: rotate(-3deg);
     }
-    950% {
+    95% {
         transform: rotate(-1deg);
     }
 }
 
-.loading-animation {
-    animation: rotation 3s infinite linear;
-    display: inline-block;
-    margin: 1.5rem;
+.animate-king {
+    animation: kingbounce 0.5s infinite linear;
 }
 
-@keyframes rotation {
-    from {
-        transform: rotate(0deg);
+@keyframes kingbounce {
+    0% {
+        top: 0;
     }
-    to {
-        transform: rotate(359deg);
+    25% {
+        top: -2vh;
+    }
+    75% {
+        top: 4vh;
     }
 }

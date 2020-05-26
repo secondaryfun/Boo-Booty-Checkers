@@ -175,7 +175,7 @@ function loadMessage(message) {
     MODAL.querySelector("h1").textContent = `${PLAYER1.toUpperCase()} GOES FIRST`
 
     CHARLIST.forEach(char => {
-        if (char.type === PLAYER1) animate(char.charElement, true)
+        if (char.type === PLAYER1) char.charElement.classList.toggle("animate")
     })
 
     BOARD.addEventListener("click", closeModal)
@@ -186,7 +186,7 @@ function loadMessage(message) {
 function closeModal(e) {
     MODAL.classList.toggle("hidden")
     CHARLIST.forEach(char => {
-        if (char.type === PLAYER1) animate(char.charElement, false)
+        if (char.type === PLAYER1) char.charElement.classList.toggle("animate")
     })
 
     MODAL.removeEventListener("click", closeModal)
@@ -499,14 +499,14 @@ function activate(charElement) {
     ACTIVEELEMENT = charElement
     ACTIVEELEMENT.dataset.active = true
     ACTIVECHAR = CHARLIST[charElement.dataset.charindex]
-    animate(ACTIVEELEMENT, true)
+    ACTIVEELEMENT.classList.toggle("animate")
 }
 
 //  FUNCTION: CLEAR ACTIVEELEMENT SETTINGS
 function deactivate(charElement) {
     charElement.dataset.active = false
 
-    animate(charElement, false)
+    charElement.classList.toggle("animate")
     endHighlights()
     CHARLIST[charElement.dataset.charindex].jumpMoved = false
 }
@@ -519,35 +519,38 @@ function restartCheckMoves(charElement) {
     showMoves(charElement, true)
 }
 
-//  FUNCTION: ANIMATE - Descriptions: starts the animation for charElement if 'start' is true.
-function animate(charElement, start) {
-    char = CHARLIST[charElement.dataset.charindex]
-    //  Start animation
-    if (start === true && !char.animation) {
-        let imgSize = 77 //  Manual entry tied to size of charElement sizes set in animations.css
-        let position = imgSize //  Sets the 2nd position to move the image to (first position is zero)
-        const interval = 100 //  Sets the speed of the animation
+//  FUNCTION: ANIMATE - Descriptions: starts the animation for charElement if 'start' is true. Only use with sprites.
+// function animate(charElement, start) {
+//     char = CHARLIST[charElement.dataset.charindex]
+//     //  Start animation
+//     if (start === true && !char.animation) {
+//         let imgSize = 77 //  Manual entry tied to size of charElement sizes set in animations.css
+//         let position = imgSize //  Sets the 2nd position to move the image to (first position is zero)
+//         const interval = 100 //  Sets the speed of the animation
 
-        //  Turn on the animation.  Stores animation in charElementData object.
-        char.animation = setInterval(() => {
-            charElement.style.backgroundPosition = `-${position}px 0px` // Start at 0
-            if (position < 480) position += imgSize
-            //  Increment by image width for each iteration
-            else position = imgSize //  Reset loop.
-        }, interval)
-    } else {
-        clearInterval(char.animation)
-        char.animation = null
-    }
-}
+//         //  Turn on the animation.  Stores animation in charElementData object.
+//         char.animation = setInterval(() => {
+//             charElement.style.backgroundPosition = `-${position}px 0px` // Start at 0
+//             if (position < 480) position += imgSize
+//             //  Increment by image width for each iteration
+//             else position = imgSize //  Reset loop.
+//         }, interval)
+//     } else {
+//         clearInterval(char.animation)
+//         char.animation = null
+//     }
+// }
 
 //  FUNCTION: KING ME - Description: Adds .king = true to char entry.
 function kingMe(charElement) {
     char = CHARLIST[charElement.dataset.charindex]
-    if (char.loc[1] === 8 && char.type === "biter") char.king = true
-    if (char.loc[1] === 1 && char.type === "grinder") char.king = true
-    if (char.king === true) {
-        charElement.classList.add("king")
+    if (char.loc[1] === 8 && char.type === "biter") {
+        charElement.classList.add("biter-king")
+        char.king = true
+    }
+    if (char.loc[1] === 1 && char.type === "grinder") {
+        charElement.classList.add("grinder-king")
+        char.king = true
     }
 }
 
