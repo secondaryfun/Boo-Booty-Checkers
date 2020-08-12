@@ -15,7 +15,7 @@ let ALTERNATEPLAY = false
 let ALLOWACTIVATE = false
 
 let INSTRUCTIONS =
-    "Click on a treasure chest to see available moves. Click again to deactivate chest. <br>Click on the highlighted square to select a move. <br>After taking a piece, additional jump moves will show. <br>Click on the active piece to end turn or a highlighted square to move again."
+    "Click on a treasure chest activate a piece and see available moves. Click again to deactivate chest. Click on the highlighted square to select a move. After taking a piece, additional jump moves will show. Click on the active piece to end turn or a highlighted square to move again."
 
 const BOARD = document.querySelector(".board")
 let BOARDSQUARES = []
@@ -24,7 +24,7 @@ const STARTBTN = document.querySelector("#startBtn")
 const P1ICON = document.querySelector("#player1")
 const P2ICON = document.querySelector("#player2")
 const MODAL = document.querySelector(".modal")
-const MESSAGEBOX = document.querySelector(".instructions")
+const MESSAGEBOX = document.querySelector(".messageBox")
 const JUMPBTN = document.querySelector("#jumpBtn")
 
 //  Build Board
@@ -276,13 +276,23 @@ function passPlayer() {
     }
     if (PLAYERTURN % 2 === 1) {
         PLAYERTURN++
-        P2ICON.classList.add("animate")
-        P1ICON.classList.remove("animate")
+        // P2ICON.classList.add("animate")
+        // P1ICON.classList.remove("animate")
+        CHARLIST.forEach(char => {
+            if (char.type === PLAYER1) char.charElement.classList.remove("animate")
+            if (char.type === PLAYER2) char.charElement.classList.add("animate")
+        })
+
     } else {
         PLAYERTURN++
-        P1ICON.classList.add("animate")
-        P2ICON.classList.remove("animate")
+        // P1ICON.classList.add("animate")
+        // P2ICON.classList.remove("animate")
+        CHARLIST.forEach(char => {
+            if (char.type === PLAYER1) char.charElement.classList.add("animate")
+            if (char.type === PLAYER2) char.charElement.classList.remove("animate")
+        })
     }
+
 }
 
 //  FUNCTION: RETURN LIST OF VALID MOVES - Description: Returns an array of legal moves for charElement.
@@ -314,7 +324,7 @@ function getValidMoves(charElement) {
         if (leftMove.target && leftMove.target.type !== char.type) {
             //look for jump space
             leftMove.jumpCheck = true
-            ;(rX = leftMove.loc[0] + addColL), (rY = leftMove.loc[1] + addRow)
+                ; (rX = leftMove.loc[0] + addColL), (rY = leftMove.loc[1] + addRow)
             if (rX > 8 || rX < 1 || rY > 8 || rY < 1) return
 
             leftMove.jumpLoc = [rX, rY]
@@ -495,6 +505,9 @@ function activate(charElement) {
         deactivate(ACTIVEELEMENT) //  Deactivate previous ACTIVEELEMENT
     }
 
+    CHARLIST.forEach(char => {
+        char.charElement.classList.remove("animate")
+    })
     // Add active settings
     ACTIVEELEMENT = charElement
     ACTIVEELEMENT.dataset.active = true
