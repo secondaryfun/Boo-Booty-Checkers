@@ -270,7 +270,6 @@ function showMoves(charElement, force = false) {
 function passPlayer() {
     ALLOWACTIVATE = true
     if (PLAYERTURN === 0) {
-        P1ICON.classList.add("animate")
         PLAYERTURN++
         return
     }
