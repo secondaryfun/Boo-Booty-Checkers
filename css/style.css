@@ -63,7 +63,7 @@ header > h1 {
     position: absolute;
     top: 25%;
     width: 30vh;
-/*     height: 30vh; */
+     z-index: 1000;
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
